@@ -1,2 +1,2 @@
-# fart-checker
-Gas analyzer Online
+# FartCHECKER
+## Gas analyzer Online
