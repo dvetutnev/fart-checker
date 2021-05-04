@@ -15,13 +15,13 @@ class TestCheckSum(unittest.TestCase):
         self.assertEqual(expected, result)
 
     def test_set_qa_command_ze03(self):
-        packet = b'\xFF\x01\x78\x03\x00\x00\x00\x00'
+        packet = b'\xFF\x01\x78\x03\x00\x00\x00\x00\x84'
         expected = 0x84
         result = calc_checksum(packet)
         self.assertEqual(expected, result)
 
     def test_set_qa_command_ze08(self):
-        packet = b'\xFF\x01\x78\x41\x00\x00\x00\x00'
+        packet = b'\xFF\x01\x78\x41\x00\x00\x00\x00\x46'
         expected = 0x46
         result = calc_checksum(packet)
         self.assertEqual(expected, result)
