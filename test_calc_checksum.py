@@ -3,7 +3,7 @@
 # Dmitriy Vetutnev, 2021
 
 
-from checksum import calc_checksum
+from uart import calc_checksum
 
 
 def test_read_command():

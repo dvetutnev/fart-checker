@@ -1,5 +1,5 @@
 # Project FartCHECKER
-# Checksum calculation for Winsen gas sensors
+# UART interface for Winsen gas sensors
 # Dmitriy Vetutnev, 2021
 
 
