@@ -57,6 +57,14 @@ def test_chunks():
     assert rx.get_data() == packet[1:8]
 
 
+def test_invalid_checksum():
+    packet = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x57'
+    rx = Receiver()
+
+    rx.put(packet)
+    assert not rx.is_done()
+
+
 from transitions import Machine
 
 
