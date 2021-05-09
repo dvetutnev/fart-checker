@@ -43,10 +43,13 @@ class Receiver:
         else:
             p = packet
 
-        ll = min(7 - len(self._data), len(p))
-        self._data += p[:ll]
+        last_idx = min(7 - len(self._data), len(p))
+        self._data += p[:last_idx]
         if len(self._data) == 7:
-            self._lump.done()
+            checksum = p[last_idx]
+            calculated_checksum = calc_checksum([0xFF] + list(self._data))
+            if checksum == calculated_checksum:
+                self._lump.done()
 
     def _skip_start_byte(self, packet):
         for i, b in enumerate(packet):
