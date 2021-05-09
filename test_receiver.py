@@ -7,7 +7,7 @@ import pytest
 from uart import Receiver, calc_checksum
 
 
-def test_cs():
+def test_checksum():
     packet = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
     assert calc_checksum(packet) == 0x56
 
@@ -18,17 +18,16 @@ def test_normal():
     rx.put(packet)
 
     assert rx.is_done()
-    assert rx.get_data() == packet[1:7]
+    assert rx.get_data() == packet[1:8]
 
 
 def test_empty():
     rx = Receiver()
     assert not rx.is_done()
-    with pytest.raises(BufferError):
+    with pytest.raises(Exception):
         rx.get_data()
 
 
-@pytest.mark.skip(reason="Hold")
 def test_wait_start_byte():
     packet = b'\x00\x56\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
     rx = Receiver()
@@ -38,15 +37,24 @@ def test_wait_start_byte():
     assert rx.get_data() == packet[3:10]
 
 
-@pytest.mark.skip(reason="Hold")
+def test_without_start_byte():
+    packet = b'\x00\x56\x42\x86\x04\x20\x00\x00\x00\x00\x56'
+    rx = Receiver()
+    rx.put(packet)
+
+    assert not rx.is_done()
+
+
 def test_chunks():
     packet = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
     rx = Receiver()
-    rx.put(packet[0:4])
-    rx.put(packet[6:8])
 
+    rx.put(packet[0:4])
+    assert not rx.is_done()
+
+    rx.put(packet[4:])
     assert rx.is_done()
-    assert rx.get_data == packet[1:7]
+    assert rx.get_data() == packet[1:8]
 
 
 from transitions import Machine
