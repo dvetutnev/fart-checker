@@ -73,7 +73,7 @@ def test_separated_checksum():
     assert not rx.is_done()
 
     rx.put(packet[8:])
-    assert rx.is_done
+    assert rx.is_done()
 
 
 def test_separated_invalid_checksum():
@@ -82,7 +82,7 @@ def test_separated_invalid_checksum():
 
     rx.put(packet[:8])
     rx.put(packet[8:])
-    assert not rx.is_done
+    assert not rx.is_done()
 
 
 from transitions import Machine
