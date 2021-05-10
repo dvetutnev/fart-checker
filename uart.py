@@ -24,10 +24,11 @@ class Receiver:
     def __init__(self):
         self._lump = self.Matter()
 
-        states = ["wait_start", "receiving", "done"]
+        states = ["wait_start", "receiving", "wait_checksum", "done"]
         transitions = [
             {"trigger": "start", "source": "wait_start", "dest": "receiving"},
-            {"trigger": "done", "source": "receiving", "dest": "done"}
+            {"trigger": "checksum", "source": "receiving", "dest": "wait_checksum"},
+            {"trigger": "done", "source": "wait_checksum", "dest": "done"}
         ]
 
         self._state_machine = Machine(model=self._lump, states=states, transitions=transitions, initial="wait_start")
@@ -43,10 +44,18 @@ class Receiver:
         else:
             p = packet
 
-        last_idx = min(7 - len(self._data), len(p))
-        self._data += p[:last_idx]
-        if len(self._data) == 7:
-            checksum = p[last_idx]
+        last_idx = None
+        if self._lump.is_receiving():
+            last_idx = min(7 - len(self._data), len(p))
+            self._data += p[:last_idx]
+            if len(self._data) == 7:
+                self._lump.checksum()
+
+        if self._lump.is_wait_checksum:
+            if last_idx and last_idx < len(p):
+                checksum = p[last_idx]
+            else:
+                checksum = p[0]
             calculated_checksum = calc_checksum([0xFF] + list(self._data))
             if checksum == calculated_checksum:
                 self._lump.done()

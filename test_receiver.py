@@ -49,7 +49,7 @@ def test_chunks():
     packet = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
     rx = Receiver()
 
-    rx.put(packet[0:4])
+    rx.put(packet[:4])
     assert not rx.is_done()
 
     rx.put(packet[4:])
@@ -63,6 +63,17 @@ def test_invalid_checksum():
 
     rx.put(packet)
     assert not rx.is_done()
+
+
+def test_separated_checksum():
+    packet = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
+    rx = Receiver()
+
+    rx.put(packet[:8])
+    assert not rx.is_done()
+
+    rx.put(packet[8:])
+    assert rx.is_done
 
 
 from transitions import Machine
