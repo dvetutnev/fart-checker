@@ -76,6 +76,15 @@ def test_separated_checksum():
     assert rx.is_done
 
 
+def test_separated_invalid_checksum():
+    packet = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x65'
+    rx = Receiver()
+
+    rx.put(packet[:8])
+    rx.put(packet[8:])
+    assert not rx.is_done
+
+
 from transitions import Machine
 
 
