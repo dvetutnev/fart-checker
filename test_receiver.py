@@ -85,6 +85,18 @@ def test_separated_invalid_checksum():
     assert not rx.is_done()
 
 
+def test_restart_after_invalid_checksum():
+    rx = Receiver()
+
+    invalid_checksum = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x65'
+    rx.put(invalid_checksum)
+    assert not rx.is_done()
+
+    normal_checksum = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
+    rx.put(normal_checksum)
+    assert rx.is_done()
+
+
 from transitions import Machine
 
 
