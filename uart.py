@@ -36,29 +36,29 @@ class Receiver:
 
         self._data = bytearray()
 
-    def put(self, packet):
+    def put(self, data):
         if self._lump.is_wait_start():
-            p = self._skip_start_byte(packet)
-            if not p:
+            incoming_packet = self._skip_start_byte(data)
+            if not incoming_packet:
                 return
             self._lump.start()
         else:
-            p = packet
+            incoming_packet = data
 
         last_idx = None
         if self._lump.is_receiving():
-            last_idx = min(7 - len(self._data), len(p))
-            self._data += p[:last_idx]
+            last_idx = min(7 - len(self._data), len(incoming_packet))
+            self._data += incoming_packet[:last_idx]
             if len(self._data) == 7:
                 self._lump.checksum()
 
         if self._lump.is_wait_checksum():
-            if last_idx and (last_idx < len(p)):    # Checksum in current packet
-                checksum = p[last_idx]
-            elif last_idx and (last_idx == len(p)): # Checksum in next packet
+            if last_idx and (last_idx < len(incoming_packet)):    # Checksum in current packet
+                checksum = incoming_packet[last_idx]
+            elif last_idx and (last_idx == len(incoming_packet)): # Checksum in next packet
                 return
             else:                                   # Separated checksum from next packet
-                checksum = p[0]
+                checksum = incoming_packet[0]
 
             calculated_checksum = calc_checksum([0xFF] + list(self._data))
             if checksum == calculated_checksum:
