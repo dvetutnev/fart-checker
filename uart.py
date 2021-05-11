@@ -28,7 +28,8 @@ class Receiver:
         transitions = [
             {"trigger": "start", "source": "wait_start", "dest": "receiving"},
             {"trigger": "checksum", "source": "receiving", "dest": "wait_checksum"},
-            {"trigger": "done", "source": "wait_checksum", "dest": "done"}
+            {"trigger": "done", "source": "wait_checksum", "dest": "done"},
+            {"trigger": "restart", "source": "wait_checksum", "dest": "wait_start"}
         ]
 
         self._state_machine = Machine(model=self._lump, states=states, transitions=transitions, initial="wait_start")
@@ -51,14 +52,15 @@ class Receiver:
             if len(self._data) == 7:
                 self._lump.checksum()
 
-        if self._lump.is_wait_checksum:
-            if last_idx and last_idx < len(p):
+        if self._lump.is_wait_checksum():
+            if last_idx and (last_idx < len(p)):
                 checksum = p[last_idx]
-            else:
-                checksum = p[0]
-            calculated_checksum = calc_checksum([0xFF] + list(self._data))
-            if checksum == calculated_checksum:
-                self._lump.done()
+                calculated_checksum = calc_checksum([0xFF] + list(self._data))
+                if checksum == calculated_checksum:
+                    self._lump.done()
+                else:
+                    self._data = bytearray()
+                    self._lump.restart()
 
     def _skip_start_byte(self, packet):
         for i, b in enumerate(packet):
