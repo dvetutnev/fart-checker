@@ -53,14 +53,19 @@ class Receiver:
                 self._lump.checksum()
 
         if self._lump.is_wait_checksum():
-            if last_idx and (last_idx < len(p)):
+            if last_idx and (last_idx < len(p)):    # Checksum in current packet
                 checksum = p[last_idx]
-                calculated_checksum = calc_checksum([0xFF] + list(self._data))
-                if checksum == calculated_checksum:
-                    self._lump.done()
-                else:
-                    self._data = bytearray()
-                    self._lump.restart()
+            elif last_idx and (last_idx == len(p)): # Checksum in next packet
+                return
+            else:                                   # Separated checksum from next packet
+                checksum = p[0]
+
+            calculated_checksum = calc_checksum([0xFF] + list(self._data))
+            if checksum == calculated_checksum:
+                self._lump.done()
+            else:
+                self._data = bytearray()
+                self._lump.restart()
 
     def _skip_start_byte(self, packet):
         for i, b in enumerate(packet):
