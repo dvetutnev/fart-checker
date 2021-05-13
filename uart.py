@@ -4,6 +4,7 @@
 
 
 from transitions import Machine
+from typing import Final
 
 
 def calc_checksum(packet):
@@ -14,6 +15,9 @@ def calc_checksum(packet):
 
 
 class Receiver:
+    START_BYTE: Final = 0xFF
+    DATA_LENGTH: Final = 7
+
     class Matter(object):
         pass
 
@@ -33,18 +37,18 @@ class Receiver:
 
     def input(self, b):
         if self._lump.is_wait_start():
-            if b == 0xFF:
+            if b == self.START_BYTE:
                 self._lump.start()
             return
 
         if self._lump.is_receiving():
             self._buffer += bytes([b])
-            if len(self._buffer) == 7:
+            if len(self._buffer) == self.DATA_LENGTH:
                 self._lump.checksum()
             return
 
         if self._lump.is_wait_checksum():
-            checksum = calc_checksum([0xFF] + list(self._buffer))
+            checksum = calc_checksum([self.START_BYTE] + list(self._buffer))
             if checksum == b:
                 self._callback(self._buffer)
 
