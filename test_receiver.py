@@ -10,8 +10,8 @@ from transitions import Machine
 
 
 def test_checksum():
-    packet = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
-    assert calc_checksum(packet) == 0x56
+    frame = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
+    assert calc_checksum(frame) == 0x56
 
 
 def test_state_machine():
@@ -59,9 +59,9 @@ def test_mock_callback2():
 def test_mock_callback3():
     cb = Mock()
 
-    packet = b'\x86\x04\x20\x00\x00\x00\x00'
+    frame = b'\x86\x04\x20\x00\x00\x00\x00'
     buffer = bytearray()
-    for b in packet:
+    for b in frame:
         buffer += bytes([b])
 
     cb(buffer)
@@ -72,13 +72,13 @@ def test_normal():
     cb = Mock()
     rx = Receiver(cb)
 
-    packet = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
-    for b in packet:
+    frame = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
+    for b in frame:
         rx.input(b)
 
     assert cb.call_count == 1
     # assert cb.call_args == ((b'\x86\x04\x20\x00\x00\x00\x00'),)
-    # assert packet[1:8] == b'\x86\x04\x20\x00\x00\x00\x00'
+    # assert frame[1:8] == b'\x86\x04\x20\x00\x00\x00\x00'
     cb.assert_called_with(b'\x86\x04\x20\x00\x00\x00\x00')
 
 
@@ -86,13 +86,13 @@ def test_not_cb_called_before_done():
     cb = Mock()
     rx = Receiver(cb)
 
-    packet = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
+    frame = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
 
-    for b in packet[:4]:
+    for b in frame[:4]:
         rx.input(b)
     cb.assert_not_called()
 
-    for b in packet[4:]:
+    for b in frame[4:]:
         rx.input(b)
     cb.assert_called_with(b'\x86\x04\x20\x00\x00\x00\x00')
 
@@ -101,8 +101,8 @@ def test_invalid_checksum():
     cb = Mock()
     rx = Receiver(cb)
 
-    packet = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x47'
-    for b in packet:
+    frame = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x47'
+    for b in frame:
         rx.input(b)
 
     cb.assert_not_called()
@@ -112,12 +112,12 @@ def test_restart_after_invalid_checksum():
     cb = Mock()
     rx = Receiver(cb)
 
-    packet = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x47'
-    for b in packet:
+    frame = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x47'
+    for b in frame:
         rx.input(b)
 
-    packet = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
-    for b in packet:
+    frame = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
+    for b in frame:
         rx.input(b)
 
     cb.assert_called_with(b'\x86\x04\x20\x00\x00\x00\x00')
