@@ -13,16 +13,14 @@ def calc_checksum(packet):
     return result & 0xFF
 
 
-class Matter(object):
-    pass
-
-
 class Receiver:
+    class Matter(object):
+        pass
 
     def __init__(self, callback):
         self._callback = callback
 
-        self._lump = Matter()
+        self._lump = Receiver.Matter()
         states = ["wait_start", "receiving", "wait_checksum"]
         transitions = [
             {"trigger": "start", "source": "wait_start", "dest": "receiving"},
