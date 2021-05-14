@@ -15,7 +15,7 @@ def calc_checksum(packet):
 
 
 class Receiver:
-    START_BYTE: Final = 0xFF
+    START_BYTE: Final = bytes([0xFF])
     DATA_LENGTH: Final = 7
 
     class Matter(object):
@@ -42,14 +42,14 @@ class Receiver:
             return
 
         if self._lump.is_receiving():
-            self._buffer += bytes([b])
-            if len(self._buffer) == self.DATA_LENGTH:
+            self._buffer += b
+            if len(self._buffer) == 7:
                 self._lump.checksum()
             return
 
         if self._lump.is_wait_checksum():
             checksum = calc_checksum([self.START_BYTE] + list(self._buffer))
-            if checksum == b:
+            if bytes([checksum]) == b:
                 self._callback(self._buffer)
 
             self._lump.restart()

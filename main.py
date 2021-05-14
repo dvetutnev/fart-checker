@@ -9,20 +9,25 @@ from uart import Receiver
 from time import localtime, asctime
 
 
+def get_concentration(packet):
+    return (packet[1] * 256) + packet[2]
+
+
+def callback(packet):
+    time = asctime(localtime())
+    concentration = get_concentration(packet)
+    print("%s %s ppm" % (time, concentration))
+
+
 def main():
+    print("Project FartCHECKER")
+
     port = serial.Serial("/dev/ttyUSB0")
+    rx = Receiver(callback)
+
     while True:
-        rx = Receiver()
-
-        packet = port.read(9)
-        print(packet)
-
-        rx.put(packet)
-        data = rx.get_data()
-
-        concentration = (data[1] * 256) + data[2]
-        ts = asctime(localtime())
-        print("%s %s ppm" % (ts, concentration))
+        b = port.read()
+        rx.input(b)
 
 
 if __name__ == "__main__":

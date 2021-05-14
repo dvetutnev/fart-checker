@@ -7,6 +7,7 @@ import pytest
 from unittest.mock import Mock
 from uart import Receiver, calc_checksum
 from transitions import Machine
+from typing import Final
 
 
 def test_checksum():
@@ -73,12 +74,9 @@ def test_normal():
     rx = Receiver(cb)
 
     frame = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
-    for b in frame:
+    for b in map(lambda b: bytes([b]), frame):
         rx.input(b)
 
-    assert cb.call_count == 1
-    # assert cb.call_args == ((b'\x86\x04\x20\x00\x00\x00\x00'),)
-    # assert frame[1:8] == b'\x86\x04\x20\x00\x00\x00\x00'
     cb.assert_called_with(b'\x86\x04\x20\x00\x00\x00\x00')
 
 
@@ -88,11 +86,11 @@ def test_not_cb_called_before_done():
 
     frame = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
 
-    for b in frame[:4]:
+    for b in map(lambda b: bytes([b]), frame[:4]):
         rx.input(b)
     cb.assert_not_called()
 
-    for b in frame[4:]:
+    for b in map(lambda b: bytes([b]), frame[4:]):
         rx.input(b)
     cb.assert_called_with(b'\x86\x04\x20\x00\x00\x00\x00')
 
@@ -102,7 +100,7 @@ def test_invalid_checksum():
     rx = Receiver(cb)
 
     frame = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x47'
-    for b in frame:
+    for b in map(lambda b: bytes([b]), frame):
         rx.input(b)
 
     cb.assert_not_called()
@@ -113,11 +111,41 @@ def test_restart_after_invalid_checksum():
     rx = Receiver(cb)
 
     frame = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x47'
-    for b in frame:
+    for b in map(lambda b: bytes([b]), frame):
         rx.input(b)
 
     frame = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x56'
-    for b in frame:
+    for b in map(lambda b: bytes([b]), frame):
         rx.input(b)
 
     cb.assert_called_with(b'\x86\x04\x20\x00\x00\x00\x00')
+
+
+def test_compare():
+    assert b'\xFF' == bytes([0xFF])
+    assert b'\xff' == bytes([0xFF])
+
+    START_BYTE: Final = 0xFF
+    assert b'\xFF' == bytes([START_BYTE])
+
+    START_BYTE2: Final = bytes([0xFF])
+    assert b'\xFF' == START_BYTE2
+
+
+@pytest.mark.xfail
+def test_compare2():
+    START_BYTE: Final = bytes([0xFF])
+
+    frame = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x47'
+    for b in frame:
+        assert b == START_BYTE
+        break
+
+
+def test_compare3():
+    START_BYTE: Final = bytes([0xFF])
+
+    frame = b'\xFF\x86\x04\x20\x00\x00\x00\x00\x47'
+    for b in map(lambda b: bytes([b]), frame):
+        assert b == START_BYTE
+        break
