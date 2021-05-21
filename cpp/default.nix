@@ -5,5 +5,6 @@ with pkgs; stdenv.mkDerivation {
   nativeBuildInputs = [
     cmake
     conan
+    ninja
   ];
 }
