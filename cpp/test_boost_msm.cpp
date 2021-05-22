@@ -63,14 +63,33 @@ struct DefStateMachine : msmf::state_machine_def<DefStateMachine>
 
     using initial_state = AState;
 
+
+    struct onFirst
+    {
+        template <class Fsm,class Evt,class SourceState,class TargetState>
+        void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+            std::cout << "onFirst event" << std::endl;
+        }
+    };
+
+    struct onSecond
+    {
+        template <class Fsm,class Evt,class SourceState,class TargetState>
+        void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+            std::cout << "onSecond event" << std::endl;
+        }
+    };
+
+
     template<typename Fsm, typename Event>
     void no_transition(const Event&, const Fsm&, int);
 
+
     struct transition_table : boost::mpl::vector<
             //        Start     Event           Next
-            msmf::Row<AState,   FirstEvent,     BState>,
-            msmf::Row<BState,   SecondEvent,    CState>,
-            msmf::Row<CState,   SecondEvent,    CState>
+            msmf::Row<AState,   FirstEvent,     BState,     onFirst>,
+            msmf::Row<BState,   SecondEvent,    CState,     onSecond>,
+            msmf::Row<CState,   SecondEvent,    CState,     msmf::none>
     >{};
 };
 
