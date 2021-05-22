@@ -16,37 +16,6 @@ struct Mock
 };
 
 
-TEST(GMock, normal) {
-    Mock mock1;
-    Mock mock2;
-
-    {
-        InSequence _;
-
-        EXPECT_CALL(mock1, call());
-        EXPECT_CALL(mock2, call());
-    }
-
-    mock1.call();
-    mock2.call();
-}
-
-TEST(GMock, DISABLED_failed) {
-    Mock mock1;
-    Mock mock2;
-
-    {
-        InSequence _;
-
-        EXPECT_CALL(mock1, call());
-        EXPECT_CALL(mock2, call());
-    }
-
-    mock2.call();
-    mock1.call();
-}
-
-
 namespace simple {
 
 
@@ -66,9 +35,8 @@ struct DefStateMachine : msmf::state_machine_def<DefStateMachine>
 
     struct onFirst
     {
-        template <class Fsm,class Evt,class SourceState,class TargetState>
+        template <typename Fsm, typename Evt, typename SourceState, typename TargetState>
         void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
-            std::cout << "onFirst event" << std::endl;
             fsm.firstMock.call();
         }
     };
@@ -77,14 +45,15 @@ struct DefStateMachine : msmf::state_machine_def<DefStateMachine>
     {
         template <class Fsm,class Evt,class SourceState,class TargetState>
         void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
-            std::cout << "onSecond event" << std::endl;
             fsm.secondMock.call();
         }
     };
 
 
     template<typename Fsm, typename Event>
-    void no_transition(const Event&, const Fsm&, int);
+    void no_transition(const Event&, const Fsm&, int) {
+        std::abort();
+    }
 
 
     struct transition_table : boost::mpl::vector<
@@ -98,11 +67,6 @@ struct DefStateMachine : msmf::state_machine_def<DefStateMachine>
     Mock firstMock;
     Mock secondMock;
 };
-
-template<typename Fsm, typename Event>
-void DefStateMachine::no_transition(const Event&, const Fsm&, int) {
-    std::abort();
-}
 
 
 using StateMachine = boost::msm::back::state_machine<DefStateMachine>;
