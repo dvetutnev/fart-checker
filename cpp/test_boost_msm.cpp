@@ -64,9 +64,7 @@ struct DefStateMachine : msmf::state_machine_def<DefStateMachine>
     using initial_state = AState;
 
     template<typename Fsm, typename Event>
-    void no_transition(const Event&, const Fsm&, int) {
-        std::abort();
-    }
+    void no_transition(const Event&, const Fsm&, int);
 
     struct transition_table : boost::mpl::vector<
             //        Start     Event           Next
@@ -75,6 +73,11 @@ struct DefStateMachine : msmf::state_machine_def<DefStateMachine>
             msmf::Row<CState,   SecondEvent,    CState>
     >{};
 };
+
+template<typename Fsm, typename Event>
+void DefStateMachine::no_transition(const Event&, const Fsm&, int) {
+    std::abort();
+}
 
 
 using StateMachine = boost::msm::back::state_machine<DefStateMachine>;
