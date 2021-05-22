@@ -69,6 +69,7 @@ struct DefStateMachine : msmf::state_machine_def<DefStateMachine>
         template <class Fsm,class Evt,class SourceState,class TargetState>
         void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
             std::cout << "onFirst event" << std::endl;
+            fsm.firstMock.call();
         }
     };
 
@@ -77,6 +78,7 @@ struct DefStateMachine : msmf::state_machine_def<DefStateMachine>
         template <class Fsm,class Evt,class SourceState,class TargetState>
         void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
             std::cout << "onSecond event" << std::endl;
+            fsm.secondMock.call();
         }
     };
 
@@ -91,6 +93,10 @@ struct DefStateMachine : msmf::state_machine_def<DefStateMachine>
             msmf::Row<BState,   SecondEvent,    CState,     onSecond>,
             msmf::Row<CState,   SecondEvent,    CState,     msmf::none>
     >{};
+
+
+    Mock firstMock;
+    Mock secondMock;
 };
 
 template<typename Fsm, typename Event>
@@ -105,8 +111,22 @@ using StateMachine = boost::msm::back::state_machine<DefStateMachine>;
 } // namespace simple
 
 
-TEST(Boost_MSM_simple, normal) {
+TEST(Boost_MSM_simple, invalidEvent) {
     simple::StateMachine stateMachine;
+    stateMachine.start();
+
+    ASSERT_DEATH({ stateMachine.process_event(simple::SecondEvent{}); }, "");
+}
+
+TEST(Boost_MSM_simple, actions) {
+    simple::StateMachine stateMachine;
+
+    {
+        InSequence _;
+        EXPECT_CALL(stateMachine.firstMock, call());
+        EXPECT_CALL(stateMachine.secondMock, call());
+    }
+
     stateMachine.start();
 
     stateMachine.process_event(simple::FirstEvent{});
@@ -114,11 +134,4 @@ TEST(Boost_MSM_simple, normal) {
     stateMachine.process_event(simple::SecondEvent{});
 
     stateMachine.stop();
-}
-
-TEST(Boost_MSM_simple, invalidEvent) {
-    simple::StateMachine stateMachine;
-    stateMachine.start();
-
-    ASSERT_DEATH({ stateMachine.process_event(simple::SecondEvent{}); }, "");
 }
