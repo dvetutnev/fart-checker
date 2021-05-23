@@ -103,6 +103,7 @@ TEST(Boost_MSM_simple, actions) {
 
 namespace choise {
 
+
 struct Mock
 {
     MOCK_METHOD(void, onEvent, (), ());
@@ -158,12 +159,6 @@ struct DefStateMachine : msmf::state_machine_def<DefStateMachine>
     };
 
 
-    template<typename Fsm, typename Event>
-    void no_transition(const Event&, const Fsm&, int) {
-        std::abort();
-    }
-
-
     struct transition_table : boost::mpl::vector<
             //        Start     Event       Next    Action      Guard
             msmf::Row<State,    Event,      Choise, onEvent,    msmf::none>,
@@ -200,4 +195,140 @@ TEST(Boost_MSM_choise, _) {
     stateMachine.process_event(choise::Event{});
 
     stateMachine.stop();
+}
+
+
+namespace submachine {
+
+
+struct Mock
+{
+    MOCK_METHOD(void, onEvent, (int), ());
+};
+
+
+namespace msmf = boost::msm::front;
+
+struct DefMachine : msmf::state_machine_def<DefMachine>
+{
+    // States
+    struct InitState : msmf::state<> {};
+    struct EndState : msmf::state<> {};
+
+    using initial_state = InitState;
+
+    // Events
+    struct StartSubMachineEvent {};
+
+    // Actions
+    struct enterSubMachine
+    {
+        template <typename Fsm, typename Evt, typename SourceState, typename TargetState>
+        void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+            fsm.mock.onEvent(1);
+        }
+    };
+
+    struct exitSubMachine
+    {
+        template <class Fsm,class Evt,class SourceState,class TargetState>
+        void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+            fsm.mock.onEvent(2);
+        }
+    };
+
+    // SubMachine, using as State
+    struct DefSubMachine : msmf::state_machine_def<DefSubMachine>
+    {
+        Mock* outerMock = nullptr;
+
+        template<typename Event, typename Fsm>
+        void on_entry(const Event&, Fsm& fsm) {
+            outerMock = &(fsm.mock);
+            std::cout << "DefSubMachine::on_entry: " << &fsm << std::endl;
+        }
+
+        // States
+        struct EntryState : msmf::entry_pseudo_state<> {};
+        struct WriteState : msmf::state<> {};
+        struct ReadState : msmf::state<> {};
+        struct ExitState : msmf::exit_pseudo_state<msmf::none> {};
+
+        //using initial_state = WriteState;
+        using initial_state = boost::mpl::vector<EntryState>;
+
+        // Events
+        struct WriteEvent {};
+        struct ReadEvent {};
+
+        // Actions
+        struct onWrite
+        {
+            template <typename Fsm, typename Evt, typename SourceState, typename TargetState>
+            void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+                fsm.outerMock->onEvent(10);
+            }
+        };
+
+        struct onRead
+        {
+            template <typename Fsm, typename Evt, typename SourceState, typename TargetState>
+            void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+                fsm.outerMock->onEvent(20);
+            }
+        };
+
+
+        struct transition_table : boost::mpl::vector<
+                //        Start         Event       Next        Action
+                msmf::Row<EntryState,   boost::any, WriteState, msmf::none>,
+                msmf::Row<WriteState,   WriteEvent, ReadState,  onWrite>,
+                msmf::Row<ReadState,    ReadEvent,  ExitState,  onRead>
+        >{};
+
+    }; // DefSubMachine
+
+    using SubMachine = boost::msm::back::state_machine<DefSubMachine>;
+
+    using SubMachineEntry = SubMachine::entry_pt<DefSubMachine::EntryState>;
+    using SubMachineExit = SubMachine::exit_pt<DefSubMachine::ExitState>;
+
+    struct transition_table : boost::mpl::vector<
+            //        Start             Event                   Next                Action
+            msmf::Row<InitState,        StartSubMachineEvent,   SubMachineEntry,    enterSubMachine>,
+            msmf::Row<SubMachineExit,   msmf::none,             EndState,           exitSubMachine>
+    >{};
+
+    Mock mock;
+};
+
+
+using Machine = boost::msm::back::state_machine<DefMachine>;
+
+
+} // namespace submacine
+
+
+TEST(Boost_MSM_submachine, _) {
+    submachine::Machine machine;
+
+    {
+        InSequence _;
+
+        EXPECT_CALL(machine.mock, onEvent(1));
+        EXPECT_CALL(machine.mock, onEvent(10));
+        EXPECT_CALL(machine.mock, onEvent(20));
+        EXPECT_CALL(machine.mock, onEvent(2));
+    }
+
+    std::cout << &machine << std::endl;
+
+    machine.start();
+
+    machine.process_event(submachine::DefMachine::StartSubMachineEvent{});
+
+    machine.process_event(submachine::DefMachine::DefSubMachine::WriteEvent{});
+    machine.process_event(submachine::DefMachine::DefSubMachine::ReadEvent{});
+
+    machine.stop();
 }
