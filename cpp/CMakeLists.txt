@@ -4,6 +4,9 @@
 cmake_minimum_required(VERSION 3.7)
 project(fart-checker CXX)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 
@@ -21,5 +24,4 @@ conan_cmake_install(
 find_package(Boost REQUIRED)
 find_package(GTest)
 
-add_executable(test test_boost_msm.cpp)
-target_link_libraries(test Boost::headers GTest::gmock_main)
+add_subdirectory(test)
