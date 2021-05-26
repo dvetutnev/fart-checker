@@ -24,25 +24,26 @@ namespace msmf = boost::msm::front;
 
 struct DefStateMachine : msmf::state_machine_def<DefStateMachine>
 {
+    // States
     struct AState : msmf::state<> {};
     struct BState : msmf::state<> {};
     struct CState : msmf::state<> {};
 
     using initial_state = AState;
 
-
+    // Actions
     struct onFirst
     {
-        template <typename Fsm, typename Evt, typename SourceState, typename TargetState>
-        void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+        template <typename Fsm, typename Event, typename SourceState, typename TargetState>
+        void operator()(const Event&, Fsm& fsm, SourceState&, TargetState&) {
             fsm.firstMock.call();
         }
     };
 
     struct onSecond
     {
-        template <class Fsm,class Evt,class SourceState,class TargetState>
-        void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+        template <typename Fsm, typename Event, typename SourceState, typename TargetState>
+        void operator()(const Event&, Fsm& fsm, SourceState&, TargetState&) {
             fsm.secondMock.call();
         }
     };

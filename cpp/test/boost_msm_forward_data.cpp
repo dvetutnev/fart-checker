@@ -48,7 +48,7 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
     // Actions
     struct onExitSubMachine
     {
-        template <typename Event, typename Fsm, typename SourceState, typename TargetState>
+        template <typename Fsm, typename Event, typename SourceState, typename TargetState>
         void operator()(const Event& event, Fsm& fsm, SourceState&, TargetState&) {
             static_assert(std::is_same_v<Event, PacketEvent>);
             fsm.mock.call(event.packet);

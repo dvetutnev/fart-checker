@@ -25,16 +25,18 @@ namespace msmf = boost::msm::front;
 
 struct DefStateMachine : msmf::state_machine_def<DefStateMachine>
 {
+    // States
     struct State : msmf::state<> {};
     struct Choise : msmf::state<> {};
     struct End : msmf::state<> {};
 
     using initial_state = State;
 
+    // Actions
     struct onEvent
     {
-        template <typename Fsm, typename Evt, typename SourceState, typename TargetState>
-        void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+        template <typename Fsm, typename Event, typename SourceState, typename TargetState>
+        void operator()(const Event&, Fsm& fsm, SourceState&, TargetState&) {
             fsm.count++;
             fsm.mock.onEvent();
         }
@@ -42,25 +44,25 @@ struct DefStateMachine : msmf::state_machine_def<DefStateMachine>
 
     struct onRepeat
     {
-        template <class Fsm,class Evt,class SourceState,class TargetState>
-        void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+        template <class Fsm,class Event, class SourceState, typename TargetState>
+        void operator()(const Event&, Fsm& fsm, SourceState&, TargetState&) {
             fsm.mock.onRepeat();
         }
     };
 
     struct onDone
     {
-        template <class Fsm,class Evt,class SourceState,class TargetState>
-        void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+        template <typename Fsm, typename Event, typename SourceState, typename TargetState>
+        void operator()(const Event&, Fsm& fsm, SourceState&, TargetState&) {
             fsm.mock.onDone();
         }
     };
 
-
+    // Guards
     struct Guard
     {
-        template <class Fsm,class Evt,class SourceState,class TargetState>
-        bool operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) const {
+        template <typename Fsm, typename Event, typename SourceState, typename TargetState>
+        bool operator()(const Event&, Fsm& fsm, SourceState&, TargetState&) const {
             return fsm.count == 2;
         }
     };

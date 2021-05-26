@@ -33,16 +33,16 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
     // Actions
     struct enterSubMachine
     {
-        template <typename Fsm, typename Evt, typename SourceState, typename TargetState>
-        void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+        template <typename Fsm, typename Event, typename SourceState, typename TargetState>
+        void operator()(const Event&, Fsm& fsm, SourceState&, TargetState&) {
             fsm.mock.onEvent(1);
         }
     };
 
     struct exitSubMachine
     {
-        template <class Fsm,class Evt,class SourceState,class TargetState>
-        void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+        template <typename Fsm, typename Event, typename SourceState, typename TargetState>
+        void operator()(const Event&, Fsm& fsm, SourceState&, TargetState&) {
             fsm.mock.onEvent(2);
         }
     };
@@ -75,16 +75,16 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
         // Actions
         struct onWrite
         {
-            template <typename Fsm, typename Evt, typename SourceState, typename TargetState>
-            void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+            template <typename Fsm, typename Event, typename SourceState, typename TargetState>
+            void operator()(const Event&, Fsm& fsm, SourceState&, TargetState&) {
                 fsm.outerMock->onEvent(10);
             }
         };
 
         struct onRead
         {
-            template <typename Fsm, typename Evt, typename SourceState, typename TargetState>
-            void operator()(const Evt&, Fsm& fsm, SourceState&,TargetState&) {
+            template <typename Fsm, typename Event, typename SourceState, typename TargetState>
+            void operator()(const Event&, Fsm& fsm, SourceState&, TargetState&) {
                 fsm.outerMock->onEvent(20);
             }
         };
