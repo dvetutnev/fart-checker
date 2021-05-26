@@ -12,7 +12,7 @@ using Packet = std::vector<unsigned char>;
 
 struct Mock
 {
-    MOCK_METHOD(void, call, (const Packet&), ());
+    MOCK_METHOD(void, method, (const Packet&), ());
 };
 
 
@@ -51,7 +51,7 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
         template <typename Fsm, typename Event, typename SourceState, typename TargetState>
         void operator()(const Event& event, Fsm& fsm, SourceState&, TargetState&) {
             static_assert(std::is_same_v<Event, PacketEvent>);
-            fsm.mock.call(event.packet);
+            fsm.mock.method(event.packet);
         }
     };
 
@@ -104,7 +104,7 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
         {
             template <typename Fsm, typename Event, typename SourceState, typename TargetState>
             bool operator()(const Event&, Fsm& fsm, SourceState&, TargetState&) const {
-                return fsm.buffer.size() == 8;
+                return fsm.buffer.size() + 1 == 8;
             }
         };
 
@@ -115,7 +115,7 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
 
                 msmf::Row<State::WaitStart, ByteEvent,      State::Receive,     msmf::none, isStartByte>,
                 msmf::Row<State::Receive,   ByteEvent,      State::Receive,     onReceive,  msmf::none>,
-                msmf::Row<State::Receive,   ByteEvent,      State::Result,      onResult,   isDone>,
+                msmf::Row<State::Receive,   ByteEvent,      State::Result,      msmf::ActionSequence_< boost::mpl::vector<onReceive, onResult> >,   isDone>,
 
                 msmf::Row<State::Result,    ResultEvent,    State::Exit,        msmf::none, msmf::none>
         >{};
@@ -145,11 +145,19 @@ using Machine = boost::msm::back::state_machine<DefMachine>;
 } // Anonymous_namespace
 
 
+TEST(GMock, forward_data) {
+    Mock mock;
+    const Packet expectedPacket = {1, 2, 3, 4, 5, 6, 7, 8};
+    EXPECT_CALL(mock, method(expectedPacket));
+    mock.method(expectedPacket);
+}
+
+
 TEST(Boost_MSM_forward_data, _) {
     Machine machine;
 
     const Packet expectedPacket = {1, 2, 3, 4, 5, 6, 7, 8};
-    EXPECT_CALL(machine.mock, call(expectedPacket));
+    EXPECT_CALL(machine.mock, method(expectedPacket));
 
     machine.start();
 
