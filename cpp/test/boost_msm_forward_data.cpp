@@ -63,6 +63,7 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
             struct Entry : msmf::entry_pseudo_state<> {};
             struct WaitStart : msmf::state<> {};
             struct Receive : msmf::state<> {};
+            struct CheckLength : msmf::state<> {};
             struct Result : msmf::state<> {};
             struct Exit : msmf::exit_pseudo_state<PacketEvent> {};
         };
@@ -84,7 +85,6 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
         {
             template <typename Event, typename Fsm, typename SourceState, typename TargetState>
             void operator()(const Event& event, Fsm& fsm, SourceState&, TargetState&) {
-                static_assert(std::is_same_v<Event, ByteEvent>);
                 const Packet& p = fsm.buffer;
                 fsm.process_event(ResultEvent{p});
             }
@@ -104,20 +104,22 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
         {
             template <typename Fsm, typename Event, typename SourceState, typename TargetState>
             bool operator()(const Event&, Fsm& fsm, SourceState&, TargetState&) const {
-                return fsm.buffer.size() + 1 == 8;
+                return fsm.buffer.size() == 8;
             }
         };
 
 
         struct transition_table : boost::mpl::vector<
-                //        Start             Event           Next                Action      Guard
-                msmf::Row<State::Entry,     boost::any,     State::WaitStart,   msmf::none, msmf::none>,
+                //        Start                 Event           Next                Action      Guard
+                msmf::Row<State::Entry,         boost::any,     State::WaitStart,   msmf::none, msmf::none>,
 
-                msmf::Row<State::WaitStart, ByteEvent,      State::Receive,     msmf::none, isStartByte>,
-                msmf::Row<State::Receive,   ByteEvent,      State::Receive,     onReceive,  msmf::none>,
-                msmf::Row<State::Receive,   ByteEvent,      State::Result,      msmf::ActionSequence_< boost::mpl::vector<onReceive, onResult> >,   isDone>,
+                msmf::Row<State::WaitStart,     ByteEvent,      State::Receive,     msmf::none, isStartByte>,
+                msmf::Row<State::Receive,       ByteEvent,      State::CheckLength, onReceive,  msmf::none>,
 
-                msmf::Row<State::Result,    ResultEvent,    State::Exit,        msmf::none, msmf::none>
+                msmf::Row<State::CheckLength,   msmf::none,     State::Receive,     msmf::none, msmf::none>,
+                msmf::Row<State::CheckLength,   msmf::none,     State::Result,      onResult,   isDone>,
+
+                msmf::Row<State::Result,        ResultEvent,    State::Exit,        msmf::none, msmf::none>
         >{};
 
         Packet buffer;
