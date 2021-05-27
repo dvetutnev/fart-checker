@@ -24,4 +24,9 @@ conan_cmake_install(
 find_package(Boost REQUIRED)
 find_package(GTest)
 
+include_directories(include)
+
+add_library(common OBJECT
+    src/checksum.cpp)
+
 add_subdirectory(test)
