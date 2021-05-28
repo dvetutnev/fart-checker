@@ -69,11 +69,28 @@ TEST(PacketReceiver, normal) {
     std::vector<unsigned char> expected = {0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
     ASSERT_EQ(machine.data, expected);
 }
-/*
+
 TEST(PacketReceiver, invalidChecksum) {
+    ASSERT_DEATH({
+                     Machine machine;
 
+                     machine.start();
+
+                     machine.process_event(ByteEvent{0xFF});
+
+                     machine.process_event(ByteEvent{0x01});
+                     machine.process_event(ByteEvent{0x86});
+                     machine.process_event(ByteEvent{0x00});
+                     machine.process_event(ByteEvent{0x00});
+                     machine.process_event(ByteEvent{0x00});
+                     machine.process_event(ByteEvent{0x00});
+                     machine.process_event(ByteEvent{0x00});
+                     machine.process_event(ByteEvent{0x97});
+
+                     machine.stop();
+                 }, "");
 }
-
+/*
 TEST(PacketReceiver, reenter) {
 
 }

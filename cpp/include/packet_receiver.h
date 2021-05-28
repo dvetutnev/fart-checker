@@ -109,8 +109,8 @@ struct DefPacketReceiver : msmf::state_machine_def<DefPacketReceiver>
             msmf::Row<State::CheckLength,   msmf::none,     State::Receive,         msmf::none, msmf::none>,
             msmf::Row<State::CheckLength,   msmf::none,     State::CheckChecksum,   msmf::none, isDone>,
 
-            msmf::Row<State::CheckChecksum, msmf::none,     State::CheckChecksum,   msmf::none, msmf::none>,
-            msmf::Row<State::CheckChecksum, msmf::none,     State::Result,          onResult,   isDone>,
+            msmf::Row<State::CheckChecksum, msmf::none,     State::CheckChecksum,   onFail,     msmf::none>,
+            msmf::Row<State::CheckChecksum, msmf::none,     State::Result,          onResult,   isValidChecksum>,
 
             msmf::Row<State::Result,        ResultEvent,    State::Exit,            msmf::none, msmf::none>
     >{};
