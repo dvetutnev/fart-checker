@@ -34,6 +34,8 @@ namespace msmf = boost::msm::front;
 
 struct DefPacketReceiver : msmf::state_machine_def<DefPacketReceiver>
 {
+    std::vector<unsigned char> buffer;
+
     struct State
     {
         struct Entry : msmf::entry_pseudo_state<> {};
@@ -48,6 +50,14 @@ struct DefPacketReceiver : msmf::state_machine_def<DefPacketReceiver>
     using initial_state = boost::mpl::vector<State::Entry>;
 
     // Actions
+    struct onStart
+    {
+        template <typename Fsm, typename SourceState, typename TargetState>
+        void operator()(const ByteEvent&, Fsm& fsm, SourceState&, TargetState&) {
+            fsm.buffer.clear();
+        }
+    };
+
     struct onReceive
     {
         template <typename Fsm, typename SourceState, typename TargetState>
@@ -103,7 +113,7 @@ struct DefPacketReceiver : msmf::state_machine_def<DefPacketReceiver>
             //        Start                 Event           Next                    Action      Guard
             msmf::Row<State::Entry,         boost::any,     State::WaitStart,       msmf::none, msmf::none>,
 
-            msmf::Row<State::WaitStart,     ByteEvent,      State::Receive,         msmf::none, isStartByte>,
+            msmf::Row<State::WaitStart,     ByteEvent,      State::Receive,         onStart,    isStartByte>,
             msmf::Row<State::Receive,       ByteEvent,      State::CheckLength,     onReceive,  msmf::none>,
 
             msmf::Row<State::CheckLength,   msmf::none,     State::Receive,         msmf::none, msmf::none>,
@@ -114,9 +124,6 @@ struct DefPacketReceiver : msmf::state_machine_def<DefPacketReceiver>
 
             msmf::Row<State::Result,        ResultEvent,    State::Exit,            msmf::none, msmf::none>
     >{};
-
-
-    std::vector<unsigned char> buffer;
 };
 
 
