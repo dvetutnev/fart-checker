@@ -1,6 +1,10 @@
 [requires]
 boost/1.76.0
 gtest/cci.20210126
+date/3.0.0
+
+[options]
+date:use_system_tz_db=True
 
 [generators]
 cmake_find_package
