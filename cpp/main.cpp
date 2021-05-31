@@ -10,7 +10,7 @@
 namespace fc {
 
 
-unsigned int ppm(const std::vector<unsigned char> p) {
+unsigned int ppm(const std::vector<unsigned char>& p) {
     return p[1] * 256 + p[2];
 }
 
