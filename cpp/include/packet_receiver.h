@@ -111,7 +111,7 @@ struct DefPacketReceiver : msmf::state_machine_def<DefPacketReceiver>
 
     struct transition_table : boost::mpl::vector<
             //        Start                 Event           Next                    Action      Guard
-            msmf::Row<State::Entry,         boost::any,     State::WaitStart,       msmf::none, msmf::none>,
+            msmf::Row<State::Entry,         msmf::none,     State::WaitStart,       msmf::none, msmf::none>,
 
             msmf::Row<State::WaitStart,     ByteEvent,      State::Receive,         onStart,    isStartByte>,
             msmf::Row<State::Receive,       ByteEvent,      State::CheckLength,     onReceive,  msmf::none>,
