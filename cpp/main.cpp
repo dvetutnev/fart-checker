@@ -34,8 +34,8 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
     // Actions
     struct onPacket
     {
-        template <typename Fsm, typename Event, typename SourceState, typename TargetState>
-        void operator()(const Event& event, Fsm& fsm, SourceState&, TargetState&) {
+        template <typename Fsm, typename SourceState, typename TargetState>
+        void operator()(const PacketEvent& event, Fsm& fsm, SourceState&, TargetState&) {
             printPacket(event.packet);
         }
     };

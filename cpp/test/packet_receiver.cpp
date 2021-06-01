@@ -19,8 +19,8 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
     // Actions
     struct onExitSubMachine
     {
-        template <typename Fsm, typename Event, typename SourceState, typename TargetState>
-        void operator()(const Event& event, Fsm& fsm, SourceState&, TargetState&) {
+        template <typename Fsm, typename SourceState, typename TargetState>
+        void operator()(const PacketEvent& event, Fsm& fsm, SourceState&, TargetState&) {
             fsm.data = event.packet;
             fsm.count++;
         }
