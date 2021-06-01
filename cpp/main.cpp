@@ -36,7 +36,8 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
     {
         template <typename Fsm, typename SourceState, typename TargetState>
         void operator()(const PacketEvent& event, Fsm& fsm, SourceState&, TargetState&) {
-            printPacket(event.packet);
+            std::vector<unsigned char> p = *(event.packet);
+            printPacket(p);
         }
     };
 

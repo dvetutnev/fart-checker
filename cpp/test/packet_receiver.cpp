@@ -39,7 +39,7 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
     >{};
 
 
-    std::vector<unsigned char> data;
+    std::optional< std::vector<unsigned char> > data;
     int count = 0;
 };
 
@@ -68,29 +68,31 @@ TEST(PacketReceiver, normal) {
 
     machine.stop();
 
+    ASSERT_TRUE(machine.data);
+
     std::vector<unsigned char> expected = {0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
-    ASSERT_EQ(machine.data, expected);
+    ASSERT_EQ(*(machine.data), expected);
 }
 
 TEST(PacketReceiver, invalidChecksum) {
-    ASSERT_DEATH({
-                     Machine machine;
+    Machine machine;
 
-                     machine.start();
+    machine.start();
 
-                     machine.process_event(ByteEvent{0xFF});
+    machine.process_event(ByteEvent{0xFF});
 
-                     machine.process_event(ByteEvent{0x01});
-                     machine.process_event(ByteEvent{0x86});
-                     machine.process_event(ByteEvent{0x00});
-                     machine.process_event(ByteEvent{0x00});
-                     machine.process_event(ByteEvent{0x00});
-                     machine.process_event(ByteEvent{0x00});
-                     machine.process_event(ByteEvent{0x00});
-                     machine.process_event(ByteEvent{0x97});
+    machine.process_event(ByteEvent{0x01});
+    machine.process_event(ByteEvent{0x86});
+    machine.process_event(ByteEvent{0x00});
+    machine.process_event(ByteEvent{0x00});
+    machine.process_event(ByteEvent{0x00});
+    machine.process_event(ByteEvent{0x00});
+    machine.process_event(ByteEvent{0x00});
+    machine.process_event(ByteEvent{0x97});
 
-                     machine.stop();
-                 }, "");
+    machine.stop();
+
+    ASSERT_FALSE(machine.data);
 }
 
 TEST(PacketReceiver, reenter) {
@@ -122,8 +124,10 @@ TEST(PacketReceiver, reenter) {
 
     machine.stop();
 
+    ASSERT_TRUE(machine.data);
+
     ASSERT_EQ(machine.count, 2);
 
     std::vector<unsigned char> expected = {0x01, 0x78, 0x03, 0x00, 0x00, 0x00, 0x00, 0x84};
-    ASSERT_EQ(machine.data, expected);
+    ASSERT_EQ(*(machine.data), expected);
 }

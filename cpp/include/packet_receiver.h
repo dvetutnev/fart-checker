@@ -6,6 +6,8 @@
 #include <boost/msm/front/functor_row.hpp>
 #include <boost/msm/back/state_machine.hpp>
 
+#include <optional>
+
 
 namespace fc {
 
@@ -16,6 +18,8 @@ struct ByteEvent
     unsigned char byte;
 };
 
+struct EmptyResultEvent {};
+
 struct ResultEvent
 {
     ResultEvent(const std::vector<unsigned char>& p) : packet{p} {}
@@ -24,8 +28,10 @@ struct ResultEvent
 
 struct PacketEvent
 {
+    PacketEvent(EmptyResultEvent) : packet{std::nullopt} {}
     PacketEvent(const ResultEvent& r) : packet{r.packet} {}
-    std::vector<unsigned char> packet;
+
+    std::optional< std::vector<unsigned char> > packet;
 };
 
 
@@ -75,11 +81,11 @@ struct DefPacketReceiver : msmf::state_machine_def<DefPacketReceiver>
         }
     };
 
-    struct onFail
+    struct onInvalidChecksum
     {
         template <typename Fsm, typename Event, typename SourceState, typename TargetState>
-        void operator()(const Event&, Fsm&, SourceState&, TargetState&) {
-            std::abort();
+        void operator()(const Event&, Fsm& fsm, SourceState&, TargetState&) {
+            fsm.process_event(EmptyResultEvent{});
         }
     };
 
@@ -110,19 +116,20 @@ struct DefPacketReceiver : msmf::state_machine_def<DefPacketReceiver>
     };
 
     struct transition_table : boost::mpl::vector<
-            //        Start                 Event           Next                    Action      Guard
-            msmf::Row<State::Entry,         msmf::none,     State::WaitStart,       msmf::none, msmf::none>,
+            //        Start                 Event               Next                    Action              Guard
+            msmf::Row<State::Entry,         msmf::none,         State::WaitStart,       msmf::none,         msmf::none>,
 
-            msmf::Row<State::WaitStart,     ByteEvent,      State::Receive,         onStart,    isStartByte>,
-            msmf::Row<State::Receive,       ByteEvent,      State::CheckLength,     onReceive,  msmf::none>,
+            msmf::Row<State::WaitStart,     ByteEvent,          State::Receive,         onStart,            isStartByte>,
+            msmf::Row<State::Receive,       ByteEvent,          State::CheckLength,     onReceive,          msmf::none>,
 
-            msmf::Row<State::CheckLength,   msmf::none,     State::Receive,         msmf::none, msmf::none>,
-            msmf::Row<State::CheckLength,   msmf::none,     State::CheckChecksum,   msmf::none, isDone>,
+            msmf::Row<State::CheckLength,   msmf::none,         State::Receive,         msmf::none,         msmf::none>,
+            msmf::Row<State::CheckLength,   msmf::none,         State::CheckChecksum,   msmf::none,         isDone>,
 
-            msmf::Row<State::CheckChecksum, msmf::none,     State::CheckChecksum,   onFail,     msmf::none>,
-            msmf::Row<State::CheckChecksum, msmf::none,     State::Result,          onResult,   isValidChecksum>,
+            msmf::Row<State::CheckChecksum, msmf::none,         State::Result,          onInvalidChecksum,  msmf::none>,
+            msmf::Row<State::CheckChecksum, msmf::none,         State::Result,          onResult,           isValidChecksum>,
 
-            msmf::Row<State::Result,        ResultEvent,    State::Exit,            msmf::none, msmf::none>
+            msmf::Row<State::Result,        EmptyResultEvent,   State::Exit,            msmf::none,         msmf::none>,
+            msmf::Row<State::Result,        ResultEvent,        State::Exit,            msmf::none,         msmf::none>
     >{};
 };
 
