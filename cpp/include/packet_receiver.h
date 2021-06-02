@@ -53,7 +53,7 @@ struct DefPacketReceiver : msmf::state_machine_def<DefPacketReceiver>
         struct Exit : msmf::exit_pseudo_state<PacketEvent> {};
     };
 
-    using initial_state = boost::mpl::vector<State::Entry>;
+    using initial_state = State::Entry;
 
     // Actions
     struct onStart
