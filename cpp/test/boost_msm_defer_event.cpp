@@ -38,10 +38,11 @@ struct DefFSM : msmf::state_machine_def<DefFSM>
         void on_entry(const DataEvent& event, Fsm& fsm) {
             fsm.mock.call(event.data);
         }
+
+        using deferred_events = boost::mpl::vector<DataEvent>;
     };
 
     using initial_state = WaitDataState;
-    using activate_deferred_events = int;
 
     struct transition_table : boost::mpl::vector<
                 //          Start           Event           Next            Action
