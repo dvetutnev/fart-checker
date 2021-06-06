@@ -4,6 +4,7 @@ add_executable(tests
     boost_msm_choise.cpp
     boost_msm_submachine.cpp
     boost_msm_forward_data.cpp
+    boost_msm_defer_event.cpp
     checksum.cpp
     packet_receiver.cpp)
 
