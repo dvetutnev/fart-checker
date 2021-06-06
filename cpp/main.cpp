@@ -1,4 +1,4 @@
-#include "packet_receiver_fsm.h"
+#include "fsm/packet_receiver.h"
 
 #include <boost/asio.hpp>
 #include <date/tz.h>
