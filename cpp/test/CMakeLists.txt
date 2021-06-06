@@ -6,6 +6,6 @@ add_executable(tests
     boost_msm_forward_data.cpp
     boost_msm_defer_event.cpp
     checksum.cpp
-    packet_receiver.cpp)
+    packet_receiver_fsm.cpp)
 
 target_link_libraries(tests Boost::headers GTest::gmock_main)

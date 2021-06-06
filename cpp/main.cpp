@@ -1,4 +1,4 @@
-#include "packet_receiver.h"
+#include "packet_receiver_fsm.h"
 
 #include <boost/asio.hpp>
 #include <date/tz.h>
@@ -42,10 +42,10 @@ struct DefMachine : msmf::state_machine_def<DefMachine>
     };
 
 
-    using SubMachine = boost::msm::back::state_machine<DefPacketReceiver>;
+    using SubMachine = boost::msm::back::state_machine<DefPacketReceiverFSM>;
 
-    using SubMachineEntry = SubMachine::entry_pt<DefPacketReceiver::State::Entry>;
-    using SubMachineExit = SubMachine::exit_pt<DefPacketReceiver::State::Exit>;
+    using SubMachineEntry = SubMachine::entry_pt<DefPacketReceiverFSM::State::Entry>;
+    using SubMachineExit = SubMachine::exit_pt<DefPacketReceiverFSM::State::Exit>;
 
     struct transition_table : boost::mpl::vector<
             //        Start             Event           Next                Action
