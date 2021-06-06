@@ -147,14 +147,6 @@ using Machine = boost::msm::back::state_machine<DefMachine>;
 } // Anonymous_namespace
 
 
-TEST(GMock, forward_data) {
-    Mock mock;
-    const Packet expectedPacket = {1, 2, 3, 4, 5, 6, 7, 8};
-    EXPECT_CALL(mock, method(expectedPacket));
-    mock.method(expectedPacket);
-}
-
-
 TEST(Boost_MSM_forward_data, _) {
     Machine machine;
 
