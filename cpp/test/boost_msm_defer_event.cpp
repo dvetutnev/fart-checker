@@ -5,6 +5,7 @@
 #include <gmock/gmock.h>
 
 
+using ::testing::StrictMock;
 using ::testing::InSequence;
 
 
@@ -49,7 +50,7 @@ struct DefFSM : msmf::state_machine_def<DefFSM>
                 msmf::Row < SendDataState,  DataSentEvent,  WaitDataState,  msmf::none >
             > {};
 
-    Mock mock;
+    StrictMock<Mock> mock;
 };
 
 
@@ -59,7 +60,20 @@ using FSM = boost::msm::back::state_machine<DefFSM>;
 } // Anonymous namespace
 
 
-TEST(Boost_MSM_defer, _) {
+TEST(Boost_MSM_defer, enqueue) {
+    FSM fsm;
+
+    EXPECT_CALL(fsm.mock, call(1));
+
+    fsm.start();
+
+    fsm.process_event(DataEvent{1});
+    fsm.process_event(DataEvent{2});
+
+    fsm.stop();
+}
+
+TEST(Boost_MSM_defer, dequeue) {
     FSM fsm;
 
     {
