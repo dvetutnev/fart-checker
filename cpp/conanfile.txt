@@ -4,6 +4,7 @@ gtest/cci.20210126
 date/3.0.0
 
 [options]
+boost:header_only=True
 date:use_system_tz_db=True
 
 [generators]
