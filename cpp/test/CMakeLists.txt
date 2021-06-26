@@ -9,6 +9,7 @@ add_executable(tests
 
     checksum.cpp
 
+    fsm/main.cpp
     fsm/packet_receiver.cpp)
 
 target_link_libraries(tests Boost::headers GTest::gmock_main)
