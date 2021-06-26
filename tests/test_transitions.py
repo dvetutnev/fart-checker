@@ -37,3 +37,27 @@ def test_event_with_data():
     fsm.trigger("ByteEvent", 0xF7)
 
     fsm.pushByte.assert_called_with(0xF7)
+
+def test_conditions():
+    class Model(object):
+        isStartByte = Mock()
+        pushByte = Mock()
+
+    states = ["Wait start byte", "Receive"]
+    transitions = [
+        {"trigger": "ByteEvent", "source": "Wait start byte", "dest": "Receive", "conditions": "isStartByte", "before": "pushByte"},
+    ]
+
+    fsm = Model()
+    defFSM = Machine(model=fsm, states=states, transitions=transitions, initial="Wait start byte")
+
+    fsm.isStartByte.side_effect = [False, False, True]
+
+    fsm.trigger("ByteEvent", 0x11)
+    fsm.trigger("ByteEvent", 0x22)
+
+    fsm.pushByte.assert_not_called()
+
+    fsm.trigger("ByteEvent", 0x33)
+
+    fsm.pushByte.assert_called_once()
