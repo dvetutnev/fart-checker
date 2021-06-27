@@ -70,6 +70,7 @@ def test_gather():
     result = asyncio.run(main())
     assert result == ["MockA", "MockB"]
 
+
 def test_gather2():
     mockA = Mock(return_value="MockA")
     async def timerA():
