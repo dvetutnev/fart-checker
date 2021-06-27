@@ -89,6 +89,18 @@ def test_gather2():
     assert result == ["MockB", "MockA"]
 
 
+def sync42():
+    return 42
+
+def syncTestingFunction():
+    return sync42()
+
+@patch(__name__ + ".sync42", new_callable=Mock)
+def test_mocking_sync_function(mock):
+    mock.return_value = 31
+    assert syncTestingFunction() == 31
+
+
 async def async42():
     await asyncio.sleep(2)
     return 42
@@ -100,25 +112,12 @@ def test_mocking_sleep(mock):
     mock.assert_awaited()
 
 
+async def testingFunction():
+    return await async42()
 
- # async def testingFunction():
- #     return await async42()
- #
- # @patch(_name__ + ".async42", new_callable=AsyncMock)
- # def test_mocking_async_function(mock):
- #     mock.return_value = 117
- #     result = asyncio.run(testingFunction())
- #     assert result == 117
- #     mock.asert_awaited()
-
-
-def sync42():
-    return 42
-
-def syncTestingFunction():
-    return sync42()
-
-@patch(__name__ + ".sync42", new_callable=Mock)
-def test_mocking_sync_function(mock):
-    mock.return_value = 31
-    assert syncTestingFunction() == 31
+@patch(__name__ + ".async42", new_callable=AsyncMock)
+def test_mocking_async_function(mock):
+    mock.return_value = 117
+    result = asyncio.run(testingFunction())
+    assert result == 117
+    mock.asert_awaited()
