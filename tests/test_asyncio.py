@@ -121,3 +121,21 @@ def test_mocking_async_function(mock):
     result = asyncio.run(testingFunction())
     assert result == 117
     mock.asert_awaited()
+
+
+def test_wait_first():
+    async def f1():
+        await asyncio.sleep(0.04)
+        return "f1"
+
+    async def f2():
+        await asyncio.sleep(0.02)
+        return "f2"
+
+    async def main():
+        done, _ = await asyncio.wait([f2(), f1()], return_when=asyncio.FIRST_COMPLETED)
+        for r in done:
+            return r.result()
+
+    result = asyncio.run(main())
+    assert result == "f2"
