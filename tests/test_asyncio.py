@@ -123,7 +123,7 @@ def test_mocking_async_function(mock):
     mock.asert_awaited()
 
 
-def test_wait_first():
+def test_asyncio_wait_first():
     async def f1():
         await asyncio.sleep(0.04)
         return "f1"
@@ -139,3 +139,45 @@ def test_wait_first():
 
     result = asyncio.run(main())
     assert result == "f2"
+
+
+def test_asyncio_wait_normal():
+    async def f():
+        await asyncio.sleep(0.01)
+        return 43
+
+    async def main():
+        done, _ = await asyncio.wait([f()], timeout=0.05)
+        for r in done:
+            return r.result()
+
+    result = asyncio.run(main())
+    assert result == 43
+
+
+def test_asyncio_wait_for_normal():
+    async def f():
+        await asyncio.sleep(0.01)
+        return 73
+
+    async def main():
+        return await asyncio.wait_for(f(), timeout=0.05)
+
+    result = asyncio.run(main())
+    assert result == 73
+
+
+def test_asyncio_wait_for_timeout():
+    async def f():
+        await asyncio.sleep(0.05)
+        return 73
+
+    async def main():
+        try:
+            return await asyncio.wait_for(f(), timeout=0.01)
+        except asyncio.TimeoutError:
+            return None
+
+
+    result = asyncio.run(main())
+    assert result is None
