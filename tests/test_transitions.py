@@ -22,6 +22,7 @@ def test_action():
 
     fsm.pushByte.assert_called()
 
+
 def test_event_with_data():
     class Model(object):
         pushByte = Mock()
@@ -37,6 +38,7 @@ def test_event_with_data():
     fsm.trigger("ByteEvent", 0xF7)
 
     fsm.pushByte.assert_called_with(0xF7)
+
 
 def test_conditions():
     class Model(object):
