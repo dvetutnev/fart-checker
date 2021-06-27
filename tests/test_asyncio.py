@@ -87,3 +87,14 @@ def test_gather2():
 
     result = asyncio.run(main())
     assert result == ["MockB", "MockA"]
+
+
+async def withSleep():
+    await asyncio.sleep(2)
+    return 42
+
+@patch("asyncio.sleep", new_callable=AsyncMock)
+def test_mocking_sleep(mock):
+    result = asyncio.run(withSleep())
+    mock.assert_awaited()
+    assert result == 42
