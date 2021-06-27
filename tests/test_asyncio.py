@@ -62,12 +62,27 @@ def test_gather():
     mockB = Mock(return_value="MockB")
     async def timerB():
         await asyncio.sleep(0.02)
+        return mockB()
 
-    async def main1():
+    async def main():
         return await asyncio.gather(timerA(), timerB())
 
-    async def main2():
+    result = asyncio.run(main())
+    assert result == ["MockA", "MockB"]
+
+def test_gather2():
+    mockA = Mock(return_value="MockA")
+    async def timerA():
+        await asyncio.sleep(0.05)
+        return mockA()
+
+    mockB = Mock(return_value="MockB")
+    async def timerB():
+        await asyncio.sleep(0.02)
+        return mockB()
+
+    async def main():
         return await asyncio.gather(timerB(), timerA())
 
-    asyncio.run(main1()) == ["MockA", "MockB"]
-    asyncio.run(main2()) == ["MockA", "MockB"]
+    result = asyncio.run(main())
+    assert result == ["MockB", "MockA"]
