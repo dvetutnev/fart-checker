@@ -12,6 +12,16 @@ def test_timer():
     asyncio.run(timer())
     mock.assert_called()
 
+@pytest.mark.asyncio
+async def test_timer():
+    mock = Mock()
+    async def timer():
+        await asyncio.sleep(0.02)
+        mock()
+
+    await timer()
+    mock.assert_called()
+
 
 def test_two_timers():
     mock1 = Mock()
