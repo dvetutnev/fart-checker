@@ -1,4 +1,5 @@
 import asyncio
+import pytest
 from unittest.mock import Mock, AsyncMock, patch
 
 
@@ -181,3 +182,25 @@ def test_asyncio_wait_for_timeout():
 
     result = asyncio.run(main())
     assert result is None
+
+
+async def asyncFoo(): pass
+
+async def fPending():
+    result = await asyncFoo()
+    return result
+
+async def fDone():
+    result = await asyncFoo()
+    return result
+
+@pytest.mark.asyncio
+@patch(__name__ + ".asyncFoo", new_callable=AsyncMock)
+@patch(__name__ + ".asyncFoo", new_callable=AsyncMock)
+async def test_mock_awittable(mockDone, mockPending):
+    mockPending.return_value = asyncio.Future()
+    mockDone.return_value = 951
+
+    done, _ = await asyncio.wait([fPending(), fDone()], return_when=asyncio.FIRST_COMPLETED)
+    for r in done:
+        assert r.result() == 951
