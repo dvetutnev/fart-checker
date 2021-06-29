@@ -162,3 +162,30 @@ async def test_asyncio_wait_for_timeout():
         assert False
     except asyncio.TimeoutError:
         pass
+
+
+@pytest.mark.asyncio
+@patch("asyncio.wait_for", new_callable=AsyncMock)
+async def test_mock_asyncio_wait_for_normal(mock):
+    mock.return_value = 789
+
+    async def f(): pass
+    coro = f()
+
+    result = await asyncio.wait_for(coro, timeout=2)
+
+    assert result == 789
+    mock.assert_awaited_with(coro, timeout=2)
+
+@pytest.mark.asyncio
+@patch("asyncio.wait_for", new_callable=AsyncMock)
+async def test_mock_asyncio_wait_for_timeout(mock):
+    mock.side_effect = asyncio.TimeoutError
+
+    async def f(): pass
+    coro = f()
+
+    with pytest.raises(asyncio.TimeoutError):
+        await asyncio.wait_for(coro, timeout=42)
+
+    mock.assert_awaited_with(coro, timeout=42)
