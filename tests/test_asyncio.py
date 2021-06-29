@@ -157,11 +157,8 @@ async def test_asyncio_wait_for_timeout():
         await asyncio.sleep(0.05)
         return 73
 
-    try:
+    with pytest.raises(asyncio.TimeoutError):
         await asyncio.wait_for(f(), timeout=0.01)
-        assert False
-    except asyncio.TimeoutError:
-        pass
 
 
 @pytest.mark.asyncio
