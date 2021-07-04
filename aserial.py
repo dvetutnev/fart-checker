@@ -5,11 +5,13 @@ import asyncio
 class ASerial:
     _serial = serial.Serial(timeout=0, write_timeout=0)
 
+
     def __init__(self, port, baudrate):
         self._serial.port = port
         self._serial.baudrate = baudrate
 
         self._serial.open()
+
 
     async def readByte(self):
         loop = asyncio.get_running_loop()
