@@ -29,3 +29,11 @@ async def test_multilpe_mock():
         serialClass.assert_called_with("/dev/ttyUSB42")
         serialObj.write.assert_awaited_with("dAta")
         readPacket.assert_awaited_with(serialObj)
+
+
+@pytest.mark.asyncio
+async def test_readSerial_open_port():
+    with patch("sensor_read.ASerial") as asClass:
+        def dummy(): pass
+        await sensor_read.readSensor("/dev/ttyUSB17", dummy)
+        asClass.assert_called_with("/dev/ttyUSB17")
