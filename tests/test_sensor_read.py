@@ -33,7 +33,16 @@ async def test_multilpe_mock():
 
 @pytest.mark.asyncio
 async def test_readSerial_open_port():
+    with patch("sensor_read.ASerial", spec=True) as asClass:
+        await sensor_read.readSensor("/dev/ttyUSB17", lambda: None)
+        asClass.assert_called_with("/dev/ttyUSB17", 9600)
+
+@pytest.mark.asyncio
+async def test_readSerial_switch_mode():
     with patch("sensor_read.ASerial") as asClass:
-        def dummy(): pass
-        await sensor_read.readSensor("/dev/ttyUSB17", dummy)
-        asClass.assert_called_with("/dev/ttyUSB17")
+        asObject = asClass.return_value
+        asObject.write = AsyncMock()
+
+        await sensor_read.readSensor("/dev/ttyUSB17", lambda: None)
+
+        asObject.write.assert_awaited_with(b"\xFF\x01\x78\x04\x00\x00\x00\x00\x83")
