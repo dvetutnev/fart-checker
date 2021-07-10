@@ -34,7 +34,7 @@ async def test_multilpe_mock():
 
 @pytest.mark.asyncio
 async def test_readSerial_open_port():
-    with patch("sensor_read.ASerial", spec=True) as asClass,\
+    with patch("sensor_read.ASerial") as asClass,\
          patch("asyncio.wait_for") as wait_for:
 
         wait_for.side_effect = asyncio.TimeoutError
