@@ -1,6 +1,6 @@
 import asyncio
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, patch, Mock
 from inspect import isclass
 
 import sensor_read
@@ -46,11 +46,12 @@ def test_several_side_effect():
 
         return effect
 
-    gen = sideEffect([42, 43, Exception])
-    assert gen() == 42
-    assert gen() == 43
+    mock = Mock()
+    mock.side_effect = sideEffect([42, 43, Exception])
+    assert mock() == 42
+    assert mock() == 43
     with pytest.raises(Exception):
-        gen()
+        mock()
 
 
 @pytest.mark.asyncio
