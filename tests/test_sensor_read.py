@@ -1,6 +1,7 @@
 import asyncio
 import pytest
 from unittest.mock import AsyncMock, patch
+from inspect import isclass
 
 import sensor_read
 from sensor_read import ZE03
@@ -30,6 +31,26 @@ async def test_multilpe_mock():
         serialClass.assert_called_with("/dev/ttyUSB42")
         serialObj.write.assert_awaited_with("dAta")
         readPacket.assert_awaited_with(serialObj)
+
+def test_several_side_effect():
+    def sideEffect(items):
+        def getItem():
+            for item in items:
+                if isclass(item) and issubclass(item, BaseException):
+                    raise item
+                yield item
+
+        generator = getItem()
+        def effect(*args, **kwargs):
+            return next(generator)
+
+        return effect
+
+    gen = sideEffect([42, 43, Exception])
+    assert gen() == 42
+    assert gen() == 43
+    with pytest.raises(Exception):
+        gen()
 
 
 @pytest.mark.asyncio
