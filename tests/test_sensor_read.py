@@ -39,10 +39,21 @@ async def test_readSerial_open_port():
 
 @pytest.mark.asyncio
 async def test_readSerial_switch_mode():
-    with patch("sensor_read.ASerial") as asClass:
+    with patch("sensor_read.ASerial") as asClass, \
+         patch("sensor_read.readPacket") as readPacket:
+
         asObject = asClass.return_value
         asObject.write = AsyncMock()
+
+        readPacket.side_effect = [
+            b"\xFF\x86\x00\x00\x00\x00\x00\x00\x7A",
+            b"\xFF\x86\x00\x00\x00\x00\x00\x00\x7A",
+            b"\xFF\x78\x01\x00\x00\x00\x00\x00\x87",
+        ]
 
         await sensor_read.readSensor("/dev/ttyUSB17", lambda: None)
 
         asObject.write.assert_awaited_with(b"\xFF\x01\x78\x04\x00\x00\x00\x00\x83")
+
+        readPacket.assert_awaited_with(asObject)
+        assert readPacket.call_count == 3
