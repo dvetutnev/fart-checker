@@ -8,22 +8,22 @@ import sensor_read
 from sensor_read import ZE03
 
 
+def sideEffect(items):
+    def getItem():
+        for item in items:
+            if isclass(item) and issubclass(item, BaseException):
+                raise item
+            yield item
+
+    generator = getItem()
+
+    def effect(*args, **kwargs):
+        return next(generator)
+
+    return effect
+
 @pytest.mark.asyncio
 async def test_several_side_effect():
-    def sideEffect(items):
-        def getItem():
-            for item in items:
-                if isclass(item) and issubclass(item, BaseException):
-                    raise item
-                yield item
-
-        generator = getItem()
-
-        def effect(*args, **kwargs):
-            return next(generator)
-
-        return effect
-
     mock = AsyncMock()
     mock.side_effect = sideEffect([42, 43, Exception])
     assert await mock() == 42
