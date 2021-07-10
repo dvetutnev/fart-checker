@@ -1,6 +1,6 @@
 import asyncio
 import pytest
-from unittest.mock import AsyncMock, patch, Mock
+from unittest.mock import AsyncMock, patch
 from inspect import isclass
 
 import sensor_read
@@ -32,7 +32,8 @@ async def test_multilpe_mock():
         serialObj.write.assert_awaited_with("dAta")
         readPacket.assert_awaited_with(serialObj)
 
-def test_several_side_effect():
+@pytest.mark.asyncio
+async def test_several_side_effect():
     def sideEffect(items):
         def getItem():
             for item in items:
@@ -46,12 +47,12 @@ def test_several_side_effect():
 
         return effect
 
-    mock = Mock()
+    mock = AsyncMock()
     mock.side_effect = sideEffect([42, 43, Exception])
-    assert mock() == 42
-    assert mock() == 43
+    assert await mock() == 42
+    assert await mock() == 43
     with pytest.raises(Exception):
-        mock()
+        await mock()
 
 
 @pytest.mark.asyncio
