@@ -19,7 +19,7 @@ async def test_multilpe_mock():
         await serial.write("dAta")
         await mockingReadPacket(serial)
 
-    with patch(__name__ + ".MockingSerial") as serialClass, \
+    with patch(__name__ + ".MockingSerial") as serialClass,\
          patch(__name__ + ".mockingReadPacket", new_callable=AsyncMock) as readPacket:
 
         serialObj = serialClass.return_value
@@ -34,14 +34,20 @@ async def test_multilpe_mock():
 
 @pytest.mark.asyncio
 async def test_readSerial_open_port():
-    with patch("sensor_read.ASerial", spec=True) as asClass:
-        await sensor_read.readSensor("/dev/ttyUSB17", lambda: None)
+    with patch("sensor_read.ASerial", spec=True) as asClass,\
+         patch("asyncio.wait_for") as wait_for:
+
+        wait_for.side_effect = asyncio.TimeoutError
+
+        with pytest.raises(asyncio.TimeoutError):
+            await sensor_read.readSensor("/dev/ttyUSB17", lambda: None)
+
         asClass.assert_called_with("/dev/ttyUSB17", 9600)
 
 
 @pytest.mark.asyncio
 async def test_readSerial_switch_mode():
-    with patch("sensor_read.ASerial") as asClass, \
+    with patch("sensor_read.ASerial") as asClass,\
          patch("sensor_read.readPacket") as readPacket:
 
         asObject = asClass.return_value

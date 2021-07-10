@@ -1,3 +1,5 @@
+import asyncio
+
 from aserial import ASerial
 
 
@@ -12,8 +14,12 @@ async def readPacket(port):
 
 async def readSensor(port, cb):
     serial = ASerial(port, 9600)
-    await serial.write(ZE03.SWITCH_MODE_CMD)
-    while True:
-        packet = await readPacket(serial)
-        if packet == ZE03.APPROVE_SWITCH_MODE:
-            break
+
+    async def switchMode():
+        await serial.write(ZE03.SWITCH_MODE_CMD)
+        while True:
+            packet = await readPacket(serial)
+            if packet == ZE03.APPROVE_SWITCH_MODE:
+                break
+
+    await asyncio.wait_for(switchMode(), 1)
