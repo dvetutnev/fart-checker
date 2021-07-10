@@ -22,14 +22,14 @@ async def readPacket(port):
     pass
 
 
+async def switchMode(serial, gasSensor):
+    await serial.write(gasSensor.SWITCH_MODE_CMD)
+    while True:
+        packet = await readPacket(serial)
+        if packet == gasSensor.APPROVE_SWITCH_MODE:
+            return
+
+
 async def readSensor(port, gasSensor, cb):
     serial = ASerial(port, 9600)
-
-    async def switchMode():
-        await serial.write(gasSensor.SWITCH_MODE_CMD)
-        while True:
-            packet = await readPacket(serial)
-            if packet == gasSensor.APPROVE_SWITCH_MODE:
-                break
-
-    await asyncio.wait_for(switchMode(), 1)
+    await asyncio.wait_for(switchMode(serial, gasSensor), 1)
