@@ -23,7 +23,7 @@ def differentSideEffect(items):
     return effect
 
 @pytest.mark.asyncio
-async def test_several_side_effect():
+async def test_differentSideEffect():
     mock = AsyncMock()
     mock.side_effect = differentSideEffect([42, 43, Exception])
     assert await mock() == 42
@@ -49,7 +49,7 @@ def differentSideEffect2(items):
     return effect
 
 @pytest.mark.asyncio
-async def test_several_side_effect2():
+async def test_differentSideEffect2():
     async def awaitArg(arg):
         await arg
         return 42
