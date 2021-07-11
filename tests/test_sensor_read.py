@@ -8,7 +8,7 @@ import sensor_read
 from sensor_read import ZE03
 
 
-def differentSideEffect(items):
+def valueOrRaise(items):
     def getItem():
         for item in items:
             if isclass(item) and issubclass(item, BaseException):
@@ -23,16 +23,16 @@ def differentSideEffect(items):
     return effect
 
 @pytest.mark.asyncio
-async def test_differentSideEffect():
+async def test_valueOrRaise():
     mock = AsyncMock()
-    mock.side_effect = differentSideEffect([42, 43, Exception])
+    mock.side_effect = valueOrRaise([42, 43, Exception])
     assert await mock() == 42
     assert await mock() == 43
     with pytest.raises(Exception):
         await mock()
 
 
-def differentSideEffect2(items):
+def awaitOrRaise(items):
     def getItem():
         for item in items:
             if isclass(item) and issubclass(item, BaseException):
@@ -56,7 +56,7 @@ async def test_differentSideEffect2():
     mock = AsyncMock(return_value=267)
     coro = mock()
 
-    sideEffect = differentSideEffect2([awaitArg, Exception])
+    sideEffect = awaitOrRaise([awaitArg, Exception])
 
     assert await sideEffect(coro) == 267
     with pytest.raises(Exception):
@@ -64,13 +64,14 @@ async def test_differentSideEffect2():
 
     mock.assert_awaited_once()
 
+
 @pytest.mark.asyncio
 async def test_differentSideEffect2_():
     async def awaitArg(arg):
         return await arg
 
     wait_for = AsyncMock()
-    wait_for.side_effect = differentSideEffect2([awaitArg, Exception])
+    wait_for.side_effect = awaitOrRaise([awaitArg, Exception])
 
     mock = AsyncMock(return_value=489)
     coro = mock()
