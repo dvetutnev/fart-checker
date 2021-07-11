@@ -41,7 +41,7 @@ def awaitOrRaise(items):
 
     generator = getItem()
 
-    async def effect(arg):
+    async def effect(arg, *args, **kwargs):
         f = next(generator)
         result = await f(arg)
         return result
@@ -53,17 +53,33 @@ async def test_awaitOrRaise():
     async def awaitArg(arg):
         return await arg
 
-    wait_for = AsyncMock()
-    wait_for.side_effect = awaitOrRaise([awaitArg, Exception])
+    mock = AsyncMock()
+    mock.side_effect = awaitOrRaise([awaitArg, Exception])
 
-    mock = AsyncMock(return_value=489)
-    coro = mock()
-    assert await wait_for(coro) == 489
+    aFunction = AsyncMock(return_value=489)
+    coroFunction = aFunction()
+    assert await mock(coroFunction) == 489
 
     with pytest.raises(Exception):
-        await wait_for(coro)
+        await mock(coroFunction)
 
-    mock.assert_awaited_once()
+    aFunction.assert_awaited_once()
+
+@pytest.mark.asyncio
+async def test_awaitOrRaise_patch_asyncio_wait_for():
+    async def awaitArg(arg):
+        return await arg
+
+    with patch("asyncio.wait_for") as mock:
+        mock.side_effect = awaitOrRaise([awaitArg, asyncio.TimeoutError])
+
+        aFunction = AsyncMock()
+        await asyncio.wait_for(aFunction(), 1)
+
+        with pytest.raises(asyncio.TimeoutError):
+            await asyncio.wait_for(aFunction(), 1)
+
+        aFunction.assert_awaited_once()
 
 
 @pytest.mark.asyncio
