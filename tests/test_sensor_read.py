@@ -43,8 +43,7 @@ def awaitOrRaise(items):
 
     async def effect(arg, *args, **kwargs):
         f = next(generator)
-        result = await f(arg)
-        return result
+        return await f(arg)
 
     return effect
 
