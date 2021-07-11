@@ -1,6 +1,6 @@
 import asyncio
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 from inspect import isclass
 
 import aserial
@@ -30,6 +30,37 @@ async def test_several_side_effect():
     assert await mock() == 43
     with pytest.raises(Exception):
         await mock()
+
+
+def sideEffect2(items):
+    def getItem():
+        for item in items:
+            if isclass(item) and issubclass(item, BaseException):
+                raise item
+            yield item
+
+    generator = getItem()
+
+    async def effect(arg):
+        f = next(generator)
+        result = await f(arg)
+        return result
+
+    return effect
+
+@pytest.mark.asyncio
+async def test_several_side_effect2():
+    async def awaitArg(arg):
+        await arg
+        return 42
+
+    mock = AsyncMock()
+    coro = mock()
+
+    sf = sideEffect2([awaitArg, Exception])
+    await sf(coro)
+
+    mock.assert_awaited()
 
 
 @pytest.mark.asyncio
