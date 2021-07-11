@@ -58,9 +58,12 @@ async def test_several_side_effect2():
     coro = mock()
 
     sf = sideEffect2([awaitArg, Exception])
-    await sf(coro)
 
-    mock.assert_awaited()
+    await sf(coro)
+    with pytest.raises(Exception):
+        await sf(coro)
+
+    mock.assert_awaited_once()
 
 
 @pytest.mark.asyncio
