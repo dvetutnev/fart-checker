@@ -51,32 +51,30 @@ def differentSideEffect2(items):
 @pytest.mark.asyncio
 async def test_differentSideEffect2():
     async def awaitArg(arg):
-        await arg
-        return 42
+        return await arg
 
-    mock = AsyncMock()
+    mock = AsyncMock(return_value=267)
     coro = mock()
 
-    sf = differentSideEffect2([awaitArg, Exception])
+    sideEffect = differentSideEffect2([awaitArg, Exception])
 
-    await sf(coro)
+    assert await sideEffect(coro) == 267
     with pytest.raises(Exception):
-        await sf(coro)
+        await sideEffect(coro)
 
     mock.assert_awaited_once()
 
 @pytest.mark.asyncio
 async def test_differentSideEffect2_():
     async def awaitArg(arg):
-        await arg
-        return 42
+        return await arg
 
     wait_for = AsyncMock()
     wait_for.side_effect = differentSideEffect2([awaitArg, Exception])
 
-    mock = AsyncMock()
+    mock = AsyncMock(return_value=489)
     coro = mock()
-    await wait_for(coro)
+    assert await wait_for(coro) == 489
 
     with pytest.raises(Exception):
         await wait_for(coro)
