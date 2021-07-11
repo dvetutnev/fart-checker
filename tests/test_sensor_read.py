@@ -65,6 +65,24 @@ async def test_differentSideEffect2():
 
     mock.assert_awaited_once()
 
+@pytest.mark.asyncio
+async def test_differentSideEffect2_():
+    async def awaitArg(arg):
+        await arg
+        return 42
+
+    wait_for = AsyncMock()
+    wait_for.side_effect = differentSideEffect2([awaitArg, Exception])
+
+    mock = AsyncMock()
+    coro = mock()
+    await wait_for(coro)
+
+    with pytest.raises(Exception):
+        await wait_for(coro)
+
+    mock.assert_awaited_once()
+
 
 @pytest.mark.asyncio
 async def test_readSerial_open_port():
