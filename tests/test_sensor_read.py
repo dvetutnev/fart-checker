@@ -49,24 +49,7 @@ def awaitOrRaise(items):
     return effect
 
 @pytest.mark.asyncio
-async def test_differentSideEffect2():
-    async def awaitArg(arg):
-        return await arg
-
-    mock = AsyncMock(return_value=267)
-    coro = mock()
-
-    sideEffect = awaitOrRaise([awaitArg, Exception])
-
-    assert await sideEffect(coro) == 267
-    with pytest.raises(Exception):
-        await sideEffect(coro)
-
-    mock.assert_awaited_once()
-
-
-@pytest.mark.asyncio
-async def test_differentSideEffect2_():
+async def test_awaitOrRaise():
     async def awaitArg(arg):
         return await arg
 
