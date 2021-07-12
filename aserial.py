@@ -2,9 +2,12 @@ import serial
 import asyncio
 
 
+class ASerialException(Exception):
+    pass
+
+
 class ASerial:
     _serial = serial.Serial(timeout=0, write_timeout=0)
-
 
     def __init__(self, port, baudrate):
         self._serial.port = port

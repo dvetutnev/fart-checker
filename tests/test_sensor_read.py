@@ -1,7 +1,8 @@
-import asyncio
 import pytest
+import asyncio
 from unittest.mock import AsyncMock, Mock, patch
 from inspect import isclass
+import serial
 
 import aserial
 import sensor_read
@@ -83,12 +84,11 @@ async def test_awaitOrRaise_patch_asyncio_wait_for():
 
 @pytest.mark.asyncio
 async def test_readSerial_open_port():
-    with patch("sensor_read.ASerial") as asClass,\
-         patch("asyncio.wait_for") as wait_for:
+    with patch("sensor_read.ASerial") as asClass:
 
-        wait_for.side_effect = asyncio.TimeoutError
+        asClass.side_effect = serial.SerialException
 
-        with pytest.raises(asyncio.TimeoutError):
+        with pytest.raises(aserial.ASerialException):
             await sensor_read.readSensor("/dev/ttyUSB17", ZE03, lambda: None)
 
         asClass.assert_called_with("/dev/ttyUSB17", 9600)
