@@ -1,7 +1,8 @@
 import pytest
 from unittest.mock import AsyncMock, patch
 from inspect import isclass
-import serial
+
+from serial import SerialException
 
 import aserial
 import sensor_read
@@ -45,7 +46,7 @@ async def test_awaitOrRaise():
 async def test_readSerial_open_port():
     with patch("aserial.ASerial") as asClass:
 
-        asClass.side_effect = serial.SerialException
+        asClass.side_effect = SerialException
 
         with pytest.raises(aserial.ASerialException):
             await sensor_read.readSensor("/dev/ttyUSB17", ZE03, lambda: None)
