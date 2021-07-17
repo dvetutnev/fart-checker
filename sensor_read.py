@@ -1,6 +1,6 @@
 import asyncio
 
-from aserial import ASerial, readPacket, ASerialException
+import aserial
 from serial import SerialException
 
 
@@ -19,17 +19,21 @@ class ZE03(GasSensor):
     READ_CMD = b"\xFF\x01\x86\x04\x00\x00\x00\x00\x79"
 
 
-async def switchMode(serial, gasSensor):
-    await serial.write(gasSensor.SWITCH_MODE_CMD)
-    while True:
-        packet = await readPacket(serial)
-        if packet == gasSensor.APPROVE_SWITCH_MODE:
-            return
+async def readPacket(): pass
 
 
 async def readSensor(port, gasSensor, cb):
     try:
-        serial = ASerial(port, 9600)
-        await asyncio.wait_for(switchMode(serial, gasSensor), 1)
+        serial = aserial.ASerial(port, 9600)
+
+        async def switchMode(serial):
+            await serial.write(gasSensor.SWITCH_MODE_CMD)
+            while True:
+                packet = await readPacket(serial)
+                if packet == gasSensor.APPROVE_SWITCH_MODE:
+                    return
+
+        await asyncio.wait_for(switchMode(serial), 1)
+
     except (SerialException, asyncio.TimeoutError) as ex:
-        raise ASerialException(ex)
+        raise aserial.ASerialException(ex)

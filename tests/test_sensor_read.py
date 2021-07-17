@@ -1,5 +1,4 @@
 import pytest
-import asyncio
 from unittest.mock import AsyncMock, patch
 from inspect import isclass
 import serial
@@ -7,6 +6,7 @@ import serial
 import aserial
 import sensor_read
 from sensor_read import ZE03
+
 
 def awaitOrRaise(items):
     def getItem():
@@ -43,7 +43,7 @@ async def test_awaitOrRaise():
 
 @pytest.mark.asyncio
 async def test_readSerial_open_port():
-    with patch("sensor_read.ASerial") as asClass:
+    with patch("aserial.ASerial") as asClass:
 
         asClass.side_effect = serial.SerialException
 
@@ -54,9 +54,11 @@ async def test_readSerial_open_port():
 
 
 @pytest.mark.asyncio
-async def test_switchMode():
-    with patch("sensor_read.readPacket") as readPacket:
-        serial = AsyncMock(spec=aserial.ASerial)
+async def test_readSerial_switch_mode():
+    with patch("aserial.ASerial", spec=aserial.ASerial) as asClass,\
+         patch("sensor_read.readPacket") as readPacket:
+
+        asObject = asClass.return_value
 
         readPacket.side_effect = [
             b"\xFF\x86\x00\x00\x00\x00\x00\x00\x7A",
@@ -64,9 +66,9 @@ async def test_switchMode():
             ZE03.APPROVE_SWITCH_MODE
         ]
 
-        await sensor_read.switchMode(serial, ZE03)
+        await sensor_read.readSensor("/dev/ttyUSB17", ZE03, lambda: None)
 
-        serial.write.assert_awaited_with(ZE03.SWITCH_MODE_CMD)
+        asObject.write.assert_awaited_with(ZE03.SWITCH_MODE_CMD)
 
-        readPacket.assert_awaited_with(serial)
-        assert readPacket.call_count == 3
+        readPacket.assert_awaited_with(asObject)
+        assert readPacket.call_count >= 3

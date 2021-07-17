@@ -33,10 +33,6 @@ class ASerial:
     async def write(self, data): pass
 
 
-async def readPacket(port):
-    pass
-
-
 async def main():
     s = ASerial("/dev/ttyUSB0", 9600)
     while True:
