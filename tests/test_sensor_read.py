@@ -1,9 +1,8 @@
-import asyncio
-
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, patch, call, ANY
 from inspect import isclass
 
+import asyncio
 from serial import SerialException
 
 import aserial
@@ -83,3 +82,38 @@ async def test_readSerial_switch_mode():
 
         readPacket.assert_awaited_with(asObject)
         assert readPacket.call_count >= 3
+
+
+@pytest.mark.asyncio
+async def test_readSerial_qa_loop():
+    with patch("aserial.ASerial", spec=aserial.ASerial) as asClass,\
+         patch("sensor_read.readPacket") as readPacket,\
+         patch("asyncio.wait_for") as wait_for:
+
+        asObject = asClass.return_value
+
+        readPacket.side_effect = [
+            ZE03.APPROVE_SWITCH_MODE,
+            b"\xFF\x86\x00\x00\x00\x00\x00\x00\x7A"
+        ]
+
+        async def awaitArg(arg):
+            return await arg
+        wait_for.side_effect = awaitOrRaise([
+            awaitArg,
+            awaitArg,
+            asyncio.TimeoutError
+        ])
+
+
+        with pytest.raises(aserial.ASerialException):
+            await sensor_read.readSensor("/dev/ttyUSB17", ZE03, lambda: None)
+
+
+        assert asObject.write.await_args_list == [
+            ANY,
+            call(ZE03.READ_CMD)
+        ]
+
+        readPacket.assert_awaited_with(asObject)
+        assert readPacket.call_count >= 2

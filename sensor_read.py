@@ -36,10 +36,12 @@ async def readSensor(port, gasSensor, cb):
 
         await asyncio.wait_for(switchMode(serial), 1)
 
-        async def getConcentration(serail):
-            pass
+        async def getConcentration(serial):
+            await serial.write(gasSensor.READ_CMD)
+            return await readPacket(serial)
 
-        await asyncio.wait_for(getConcentration(serial), 1)
+        while True:
+            await asyncio.wait_for(getConcentration(serial), 1)
 
 
     except (SerialException, TimeoutError) as ex:
