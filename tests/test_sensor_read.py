@@ -1,37 +1,12 @@
 import pytest
 import asyncio
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 from inspect import isclass
 import serial
 
 import aserial
 import sensor_read
 from sensor_read import ZE03
-
-
-def valueOrRaise(items):
-    def getItem():
-        for item in items:
-            if isclass(item) and issubclass(item, BaseException):
-                raise item
-            yield item
-
-    generator = getItem()
-
-    def effect(*args, **kwargs):
-        return next(generator)
-
-    return effect
-
-@pytest.mark.asyncio
-async def test_valueOrRaise():
-    mock = AsyncMock()
-    mock.side_effect = valueOrRaise([42, 43, Exception])
-    assert await mock() == 42
-    assert await mock() == 43
-    with pytest.raises(Exception):
-        await mock()
-
 
 def awaitOrRaise(items):
     def getItem():
@@ -64,22 +39,6 @@ async def test_awaitOrRaise():
         await mock(coroFunction)
 
     aFunction.assert_awaited_once()
-
-@pytest.mark.asyncio
-async def test_awaitOrRaise_patch_asyncio_wait_for():
-    async def awaitArg(arg):
-        return await arg
-
-    with patch("asyncio.wait_for") as mock:
-        mock.side_effect = awaitOrRaise([awaitArg, asyncio.TimeoutError])
-
-        aFunction = AsyncMock()
-        await asyncio.wait_for(aFunction(), 1)
-
-        with pytest.raises(asyncio.TimeoutError):
-            await asyncio.wait_for(aFunction(), 1)
-
-        aFunction.assert_awaited_once()
 
 
 @pytest.mark.asyncio
