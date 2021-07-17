@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 from unittest.mock import AsyncMock, patch
 from inspect import isclass
@@ -57,7 +59,8 @@ async def test_readSerial_open_port():
 @pytest.mark.asyncio
 async def test_readSerial_switch_mode():
     with patch("aserial.ASerial", spec=aserial.ASerial) as asClass,\
-         patch("sensor_read.readPacket") as readPacket:
+         patch("sensor_read.readPacket") as readPacket,\
+         patch("asyncio.wait_for") as wait_for:
 
         asObject = asClass.return_value
 
@@ -67,7 +70,14 @@ async def test_readSerial_switch_mode():
             ZE03.APPROVE_SWITCH_MODE
         ]
 
-        await sensor_read.readSensor("/dev/ttyUSB17", ZE03, lambda: None)
+        async def awaitArg(arg):
+            return await arg
+        wait_for.side_effect = awaitOrRaise([awaitArg, asyncio.TimeoutError])
+
+
+        with pytest.raises(aserial.ASerialException):
+            await sensor_read.readSensor("/dev/ttyUSB17", ZE03, lambda: None)
+
 
         asObject.write.assert_awaited_with(ZE03.SWITCH_MODE_CMD)
 

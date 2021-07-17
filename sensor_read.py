@@ -1,7 +1,8 @@
 import asyncio
-
 import aserial
+
 from serial import SerialException
+from asyncio import TimeoutError
 
 
 class GasSensor:
@@ -35,5 +36,11 @@ async def readSensor(port, gasSensor, cb):
 
         await asyncio.wait_for(switchMode(serial), 1)
 
-    except (SerialException, asyncio.TimeoutError) as ex:
+        async def getConcentration(serail):
+            pass
+
+        await asyncio.wait_for(getConcentration(serial), 1)
+
+
+    except (SerialException, TimeoutError) as ex:
         raise aserial.ASerialException(ex)
