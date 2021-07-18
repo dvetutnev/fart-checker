@@ -1,9 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock, Mock, patch, call, ANY
 from inspect import isclass
-
 import asyncio
-from serial import SerialException
 
 import aserial
 import sensor_read
