@@ -44,24 +44,9 @@ async def test_awaitOrRaise():
 
 
 @pytest.mark.asyncio
-async def test_readSerial_open_port():
-    with patch("aserial.ASerial") as asClass:
-
-        asClass.side_effect = SerialException
-
-        with pytest.raises(aserial.ASerialException):
-            await sensor_read.readSensor("/dev/ttyUSB17", ZE03, lambda: None)
-
-        asClass.assert_called_with("/dev/ttyUSB17", 9600)
-
-
-@pytest.mark.asyncio
 async def test_readSerial_switch_mode():
-    with patch("aserial.ASerial", spec=aserial.ASerial) as asClass,\
-         patch("sensor_read.readPacket") as readPacket,\
+    with patch("sensor_read.readPacket") as readPacket,\
          patch("asyncio.wait_for") as wait_for:
-
-        asObject = asClass.return_value
 
         readPacket.side_effect = [
             b"\xFF\x86\x00\x00\x00\x00\x00\x00\x7A",
@@ -69,30 +54,28 @@ async def test_readSerial_switch_mode():
             ZE03.approve_switch_mode
         ]
 
-        async def awaitArg(arg):
-            return await arg
+        async def awaitArg(arg): return await arg
         wait_for.side_effect = awaitOrRaise([awaitArg, asyncio.TimeoutError])
+
+        port = AsyncMock(aserial.ASerial)
 
 
         with pytest.raises(aserial.ASerialException):
-            await sensor_read.readSensor("/dev/ttyUSB17", ZE03, lambda: None)
+            await sensor_read.readSensor(port, ZE03, lambda: None)
 
 
-        asObject.write.assert_awaited_with(ZE03.switch_mode_cmd)
+        port.write.assert_awaited_with(ZE03.switch_mode_cmd)
 
-        readPacket.assert_awaited_with(asObject)
+        readPacket.assert_awaited_with(port)
         assert readPacket.call_count >= 3
 
 
 @pytest.mark.asyncio
 async def test_readSerial_get_sample_and_push_loop():
-    with patch("aserial.ASerial", spec=aserial.ASerial) as asClass,\
-         patch("sensor_read.readPacket") as readPacket,\
+    with patch("sensor_read.readPacket") as readPacket,\
          patch("sensor_read.ZE03.parsePacket") as parsePacket,\
          patch("asyncio.wait_for") as wait_for,\
          patch("asyncio.sleep") as sleep:
-
-        asObject = asClass.return_value
 
         readPacket.side_effect = [
             ZE03.approve_switch_mode,
@@ -103,8 +86,7 @@ async def test_readSerial_get_sample_and_push_loop():
         item = object()
         parsePacket.return_value = item
 
-        async def awaitArg(arg):
-            return await arg
+        async def awaitArg(arg): return await arg
         wait_for.side_effect = awaitOrRaise([
             awaitArg,
             awaitArg,
@@ -112,20 +94,21 @@ async def test_readSerial_get_sample_and_push_loop():
             asyncio.TimeoutError
         ])
 
+        port = AsyncMock(aserial.ASerial)
         dashBoard = Mock()
 
 
         with pytest.raises(aserial.ASerialException):
-            await sensor_read.readSensor("/dev/ttyUSB17", ZE03, dashBoard)
+            await sensor_read.readSensor(port, ZE03, dashBoard)
 
 
-        assert asObject.write.await_args_list == [
+        assert port.write.await_args_list == [
             ANY,
             call(ZE03.read_cmd),
             call(ZE03.read_cmd)
         ]
 
-        readPacket.assert_awaited_with(asObject)
+        readPacket.assert_awaited_with(port)
         assert readPacket.call_count >= 2
 
         dashBoard.assert_called_with(item)

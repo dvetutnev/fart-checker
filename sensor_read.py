@@ -36,20 +36,18 @@ async def readPacket(): pass
 
 async def readSensor(port, gasSensor, dashBoard):
     try:
-        serial = aserial.ASerial(port, 9600)
-
         async def switchMode():
-            await serial.write(gasSensor.switch_mode_cmd)
+            await port.write(gasSensor.switch_mode_cmd)
             while True:
-                packet = await readPacket(serial)
+                packet = await readPacket(port)
                 if packet == gasSensor.approve_switch_mode:
                     return
 
         await asyncio.wait_for(switchMode(), 1)
 
         async def getSample():
-            await serial.write(gasSensor.read_cmd)
-            return await readPacket(serial)
+            await port.write(gasSensor.read_cmd)
+            return await readPacket(port)
 
         while True:
             sample = await asyncio.wait_for(getSample(), 1)
