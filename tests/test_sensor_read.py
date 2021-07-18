@@ -85,7 +85,7 @@ async def test_readSerial_switch_mode():
 
 
 @pytest.mark.asyncio
-async def test_readSerial_qa_loop():
+async def test_readSerial_get_sample_and_push():
     with patch("aserial.ASerial", spec=aserial.ASerial) as asClass,\
          patch("sensor_read.readPacket") as readPacket,\
          patch("sensor_read.ZE03.parsePacket") as parsePacket,\
