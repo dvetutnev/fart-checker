@@ -55,6 +55,7 @@ async def readSensor(port, gasSensor, dashBoard):
             sample = await asyncio.wait_for(getSample(), 1)
             item = gasSensor.parsePacket(sample)
             dashBoard(item)
+            await asyncio.sleep(1)
 
 
     except (SerialException, TimeoutError) as ex:

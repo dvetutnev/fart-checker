@@ -85,17 +85,19 @@ async def test_readSerial_switch_mode():
 
 
 @pytest.mark.asyncio
-async def test_readSerial_get_sample_and_push():
+async def test_readSerial_get_sample_and_push_loop():
     with patch("aserial.ASerial", spec=aserial.ASerial) as asClass,\
          patch("sensor_read.readPacket") as readPacket,\
          patch("sensor_read.ZE03.parsePacket") as parsePacket,\
-         patch("asyncio.wait_for") as wait_for:
+         patch("asyncio.wait_for") as wait_for,\
+         patch("asyncio.sleep") as sleep:
 
         asObject = asClass.return_value
 
         readPacket.side_effect = [
             ZE03.approve_switch_mode,
-            b"\xFF\x86\x00\x00\x00\x00\x00\x00\x7A"
+            b"\xFF\x86\x00\x00\x00\x00\x00\x00\x7A",
+            b"\xFF\x86\x00\x03\x00\x00\x00\x00\x77"
         ]
 
         item = object()
@@ -104,6 +106,7 @@ async def test_readSerial_get_sample_and_push():
         async def awaitArg(arg):
             return await arg
         wait_for.side_effect = awaitOrRaise([
+            awaitArg,
             awaitArg,
             awaitArg,
             asyncio.TimeoutError
@@ -118,6 +121,7 @@ async def test_readSerial_get_sample_and_push():
 
         assert asObject.write.await_args_list == [
             ANY,
+            call(ZE03.read_cmd),
             call(ZE03.read_cmd)
         ]
 
@@ -125,3 +129,6 @@ async def test_readSerial_get_sample_and_push():
         assert readPacket.call_count >= 2
 
         dashBoard.assert_called_with(item)
+        assert dashBoard.call_count == 2
+
+        assert sleep.await_count == 2
