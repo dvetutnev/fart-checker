@@ -34,7 +34,7 @@ class ZE03(GasSensor):
 async def readPacket(): pass
 
 
-async def readSensor(port, gasSensor, cb):
+async def readSensor(port, gasSensor, dashBoard):
     try:
         serial = aserial.ASerial(port, 9600)
 
@@ -47,12 +47,14 @@ async def readSensor(port, gasSensor, cb):
 
         await asyncio.wait_for(switchMode(), 1)
 
-        async def getConcentration():
+        async def getSample():
             await serial.write(gasSensor.read_cmd)
             return await readPacket(serial)
 
         while True:
-            await asyncio.wait_for(getConcentration(), 1)
+            sample = await asyncio.wait_for(getSample(), 1)
+            item = gasSensor.parsePacket(sample)
+            dashBoard(item)
 
 
     except (SerialException, TimeoutError) as ex:

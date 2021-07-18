@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import AsyncMock, patch, call, ANY
+from unittest.mock import AsyncMock, Mock, patch, call, ANY
 from inspect import isclass
 
 import asyncio
@@ -88,6 +88,7 @@ async def test_readSerial_switch_mode():
 async def test_readSerial_qa_loop():
     with patch("aserial.ASerial", spec=aserial.ASerial) as asClass,\
          patch("sensor_read.readPacket") as readPacket,\
+         patch("sensor_read.ZE03.parsePacket") as parsePacket,\
          patch("asyncio.wait_for") as wait_for:
 
         asObject = asClass.return_value
@@ -97,6 +98,9 @@ async def test_readSerial_qa_loop():
             b"\xFF\x86\x00\x00\x00\x00\x00\x00\x7A"
         ]
 
+        item = object()
+        parsePacket.return_value = item
+
         async def awaitArg(arg):
             return await arg
         wait_for.side_effect = awaitOrRaise([
@@ -105,9 +109,11 @@ async def test_readSerial_qa_loop():
             asyncio.TimeoutError
         ])
 
+        dashBoard = Mock()
+
 
         with pytest.raises(aserial.ASerialException):
-            await sensor_read.readSensor("/dev/ttyUSB17", ZE03, lambda: None)
+            await sensor_read.readSensor("/dev/ttyUSB17", ZE03, dashBoard)
 
 
         assert asObject.write.await_args_list == [
@@ -117,3 +123,5 @@ async def test_readSerial_qa_loop():
 
         readPacket.assert_awaited_with(asObject)
         assert readPacket.call_count >= 2
+
+        dashBoard.assert_called_with(item)
