@@ -1,5 +1,5 @@
+import gas_sensor
 import asyncio
-import aserial
 
 from serial import SerialException
 from asyncio import TimeoutError
@@ -31,4 +31,4 @@ async def readSensor(port, gasSensor, dashBoard):
 
 
     except (SerialException, TimeoutError) as ex:
-        raise aserial.ASerialException(ex)
+        raise gas_sensor.ASerialException(ex)

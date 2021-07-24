@@ -62,7 +62,7 @@ async def test_readSerial_switch_mode():
 
         port = AsyncMock(aserial.ASerial)
 
-        with pytest.raises(aserial.ASerialException):
+        with pytest.raises(gas_sensor.ASerialException):
             await sensor_read.readSensor(port, gasSensor, lambda: None)
 
 
@@ -103,7 +103,7 @@ async def test_readSerial_get_sample_and_push_loop():
         dashBoard = Mock()
 
 
-        with pytest.raises(aserial.ASerialException):
+        with pytest.raises(gas_sensor.ASerialException):
             await sensor_read.readSensor(port, gasSensor, dashBoard)
 
 

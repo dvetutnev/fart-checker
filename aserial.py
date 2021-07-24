@@ -2,10 +2,6 @@ import serial
 import asyncio
 
 
-class ASerialException(Exception):
-    pass
-
-
 class ASerial:
     _serial = serial.Serial(timeout=0, write_timeout=0)
 
