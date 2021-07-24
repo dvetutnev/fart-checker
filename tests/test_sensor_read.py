@@ -5,7 +5,6 @@ import asyncio
 
 import aserial
 import gas_sensor
-import sensor_read
 
 
 def awaitOrRaise(items):
@@ -43,7 +42,7 @@ async def test_awaitOrRaise():
 
 @pytest.mark.asyncio
 async def test_readSerial_switch_mode():
-    with patch("sensor_read.readPacket") as readPacket,\
+    with patch("gas_sensor.readPacket") as readPacket,\
          patch("asyncio.wait_for") as wait_for:
 
         gasSensor = Mock(gas_sensor.BaseSensor)
@@ -63,7 +62,7 @@ async def test_readSerial_switch_mode():
         port = AsyncMock(aserial.ASerial)
 
         with pytest.raises(gas_sensor.ASerialException):
-            await sensor_read.readSensor(port, gasSensor, lambda: None)
+            await gas_sensor.readSensor(port, gasSensor, lambda: None)
 
 
         port.write.assert_awaited_with(gasSensor.switch_mode_cmd)
@@ -74,7 +73,7 @@ async def test_readSerial_switch_mode():
 
 @pytest.mark.asyncio
 async def test_readSerial_get_sample_and_push_loop():
-    with patch("sensor_read.readPacket") as readPacket,\
+    with patch("gas_sensor.readPacket") as readPacket,\
          patch("asyncio.wait_for") as wait_for,\
          patch("asyncio.sleep") as sleep:
 
@@ -104,7 +103,7 @@ async def test_readSerial_get_sample_and_push_loop():
 
 
         with pytest.raises(gas_sensor.ASerialException):
-            await sensor_read.readSensor(port, gasSensor, dashBoard)
+            await gas_sensor.readSensor(port, gasSensor, dashBoard)
 
 
         assert port.write.await_args_list == [
