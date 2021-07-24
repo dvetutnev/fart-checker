@@ -4,6 +4,7 @@ from inspect import isclass
 import asyncio
 
 import aserial
+import gas_sensor
 import sensor_read
 
 
@@ -45,7 +46,7 @@ async def test_readSerial_switch_mode():
     with patch("sensor_read.readPacket") as readPacket,\
          patch("asyncio.wait_for") as wait_for:
 
-        gasSensor = Mock(sensor_read.GasSensor)
+        gasSensor = Mock(gas_sensor.BaseSensor)
         type(gasSensor).switch_mode_cmd = PropertyMock(return_value=b"\xAA\x02\x03\x04\x05\x06\x07\x08\x09")
         type(gasSensor).approve_switch_mode = PropertyMock(return_value=b"\xBB\x02\x03\x04\x05\x06\x07\x08\x09")
         type(gasSensor).read_cmd = PropertyMock(return_value=b"\xCC\x02\x03\x04\x05\x06\x07\x08\x09")
@@ -77,7 +78,7 @@ async def test_readSerial_get_sample_and_push_loop():
          patch("asyncio.wait_for") as wait_for,\
          patch("asyncio.sleep") as sleep:
 
-        gasSensor = Mock(sensor_read.GasSensor)
+        gasSensor = Mock(gas_sensor.BaseSensor)
         type(gasSensor).switch_mode_cmd = PropertyMock(return_value=b"\xAA\x02\x03\x04\x05\x06\x07\x08\x09")
         type(gasSensor).approve_switch_mode = PropertyMock(return_value=b"\xBB\x02\x03\x04\x05\x06\x07\x08\x09")
         type(gasSensor).read_cmd = PropertyMock(return_value=b"\xCC\x02\x03\x04\x05\x06\x07\x08\x09")
