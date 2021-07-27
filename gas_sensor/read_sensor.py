@@ -1,7 +1,7 @@
 import gas_sensor
 import asyncio
-from asyncio import TimeoutError
 
+from asyncio import TimeoutError
 from serial import SerialException
 
 
