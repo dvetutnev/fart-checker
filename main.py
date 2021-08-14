@@ -5,7 +5,6 @@
 
 
 import serial
-from uart import Receiver
 from time import localtime, asctime
 
 
