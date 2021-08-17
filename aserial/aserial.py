@@ -27,14 +27,3 @@ class ASerial:
 
 
     async def write(self, data): pass
-
-
-async def main():
-    s = ASerial("/dev/ttyUSB0", 9600)
-    while True:
-        c = await s.readByte()
-        print(c)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
