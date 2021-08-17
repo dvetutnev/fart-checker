@@ -4,29 +4,19 @@
 # Dmitriy Vetutnev, 2021
 
 
-import serial
-from time import localtime, asctime
-
-
-def get_concentration(packet):
-    return (packet[1] * 256) + packet[2]
-
-
-def callback(packet):
-    time = asctime(localtime())
-    concentration = get_concentration(packet)
-    print("%s %s ppm" % (time, concentration))
+import aserial
+import gas_sensor
+import asyncio
 
 
 def main():
     print("Project FartCHECKER")
 
-    port = serial.Serial("/dev/ttyUSB0")
-    rx = Receiver(callback)
+    port = aserial.ASerial("/dev/ttyUSB0", 9600)
+    sensor = gas_sensor.ZE03("CO")
+    def dashBoard(measure): print(measure)
 
-    while True:
-        b = port.read()
-        rx.input(b)
+    asyncio.run(gas_sensor.readSensor(port, sensor, dashBoard))
 
 
 if __name__ == "__main__":
