@@ -22,6 +22,7 @@ async def main():
     await asyncio.wait([taskWrite, taskRead])
 
     result = taskRead.result()
-    assert taskRead.result() == data
+    print(result)
+    assert result == data
 
 asyncio.run(main())
