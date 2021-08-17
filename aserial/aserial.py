@@ -17,13 +17,24 @@ class ASerial:
         future = loop.create_future()
 
         def cb():
-            d = self._serial.read(1)
+            byte = self._serial.read(1)
             loop.remove_reader(self._serial.fileno())
-            future.set_result(d)
+            future.set_result(byte)
 
         loop.add_reader(self._serial.fileno(), cb)
 
         return await future
 
 
-    async def write(self, data): pass
+    async def write(self, data):
+        loop = asyncio.get_running_loop()
+        event = asyncio.Event()
+
+        def cb():
+            loop.remove_writer(self._serial.fileno())
+            event.set()
+
+        loop.add_writer(self._serial.fileno(), cb)
+        self._serial.write(data)
+
+        await event.wait()
