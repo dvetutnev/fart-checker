@@ -19,6 +19,23 @@ class BaseSensor:
         return None
 
 
+class Measure:
+    def __init__(self, name, value):
+        self._name = name
+        self._value = value
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def value(self):
+        return self._value
+
+    def __str__(self):
+        return "{0} {1}".format(self.name, self.value)
+
+
 class ZE03(BaseSensor):
     _SWITCH_MODE_CMD = b"\xFF\x01\x78\x04\x00\x00\x00\x00\x83"
     _APPROVE_SWITCH_MODE = b"\xFF\x78\x01\x00\x00\x00\x00\x00\x87"
