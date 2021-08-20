@@ -13,7 +13,7 @@ def main():
     print("Project FartCHECKER")
 
     port = aserial.ASerial("/dev/ttyUSB0", 9600)
-    sensor = gas_sensor.ZE03("CO")
+    sensor = gas_sensor.ZE03(gas_sensor.Gas.CO)
     def dashBoard(measure): print(measure)
 
     asyncio.run(gas_sensor.readSensor(port, sensor, dashBoard))

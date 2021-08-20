@@ -1,3 +1,6 @@
+from gas_sensor import Gas
+
+
 class BaseSensor:
     _SWITCH_MODE_CMD = None
     _APPROVE_SWITCH_MODE = None
@@ -41,25 +44,14 @@ class ZE03(BaseSensor):
     _APPROVE_SWITCH_MODE = b"\xFF\x78\x01\x00\x00\x00\x00\x00\x87"
     _READ_CMD = b"\xFF\x01\x86\x00\x00\x00\x00\x00\x79"
 
-    _FACTOR = {
-        "CO": 1,
-        "NH3": 1,
-        "H2S": 1,
-        "HF": 1,
-        "O2": 0.1,
-        "NO2": 0.1,
-        "SO2": 0.1,
-        "O3": 0.1,
-        "CL2": 0.1
-    }
-
 
     def __init__(self, name):
-        if name not in self._FACTOR:
-            raise Exception("Unknown sensor type")
-
         self._name = name
-        self._factor = self._FACTOR[name]
+
+        if name in (Gas.CO, Gas.NH3, Gas.H2S, Gas.HF):
+            self._factor = 1
+        elif name in (Gas.O2, Gas.NO2, Gas.SO2, Gas.O3, Gas.CL2):
+            raise Exception("Unknown sensor type '%s'" % name)
 
 
     def parsePacket(self, packet):
