@@ -1,5 +1,5 @@
 """
-InfluxConfig, [PortConfig]
+loadConfig(stream): -> InfluxConfig, [PortConfig]
 """
 
 
@@ -47,15 +47,20 @@ class InfluxConfig:
         return self._token
 
 
+
+def loadInfluxConfig(conf):
+    for key in ("url", "org", "bucket", "token"):
+        if key not in conf:
+            raise Exception("Invalid config, not found 'influxdb: {0}'".format(key))
+
+    return InfluxConfig(conf["url"], conf["org"], conf["bucket"], conf["token"])
+
+
 def loadConfig(source):
     conf = yaml.load(source)
 
     for confInflux in filter(lambda d: "influxdb" in d, conf):
-        url = confInflux["influxdb"]["url"]
-        org = confInflux["influxdb"]["org"]
-        bucket = confInflux["influxdb"]["bucket"]
-        token = confInflux["influxdb"]["token"]
-        influx = InfluxConfig(url, org, bucket, token)
+        influx = loadInfluxConfig(confInflux["influxdb"])
         break
     else:
         raise Exception("Invalid config, not found 'influxdb'")

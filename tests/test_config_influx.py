@@ -26,8 +26,9 @@ def test_config_influx_missing():
         org: kysa.me
         bucket: FartCHECKER
     """
-    with pytest.raises(Exception):
+    with pytest.raises(Exception) as ex:
         result, _ = gas_sensor.loadConfig(config)
+    print(ex)
 
 
 def test_config_influx_missing_field():
@@ -37,5 +38,6 @@ def test_config_influx_missing_field():
         org: kysa.me
         bucket: FartCHECKER
     """
-    with pytest.raises(Exception):
+    with pytest.raises(Exception) as ex:
         result, _ = gas_sensor.loadConfig(config)
+    print(ex)
