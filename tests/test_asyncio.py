@@ -113,14 +113,14 @@ async def test_mocking_sleep(mock):
     mock.assert_awaited()
 
 
-async def testingFunction():
+async def mockingFunction():
     return await async42()
 
 @pytest.mark.asyncio
 @patch(__name__ + ".async42", new_callable=AsyncMock)
 async def test_mocking_async_function(mock):
     mock.return_value = 117
-    result = await testingFunction()
+    result = await mockingFunction()
     assert result == 117
     mock.asert_awaited()
 
