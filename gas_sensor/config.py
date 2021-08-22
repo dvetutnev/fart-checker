@@ -4,6 +4,8 @@ InfluxConfig, [PortConfig]
 
 
 from gas_sensor import Gas
+import yaml
+
 
 class PortConfig:
 
@@ -45,5 +47,17 @@ class InfluxConfig:
         return self._token
 
 
-def loadConfig():
-    pass
+def loadConfig(source):
+    conf = yaml.load(source)
+
+    for confInflux in filter(lambda d: "influxdb" in d, conf):
+        url = confInflux["influxdb"]["url"]
+        org = confInflux["influxdb"]["org"]
+        bucket = confInflux["influxdb"]["bucket"]
+        token = confInflux["influxdb"]["token"]
+        influx = InfluxConfig(url, org, bucket, token)
+        break
+    else:
+        raise Exception("Invalid config, not found 'influxdb'")
+
+    return influx, []

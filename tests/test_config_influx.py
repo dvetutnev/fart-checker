@@ -20,6 +20,16 @@ def test_config_influx():
     assert result.token == "t0ken"
 
 
+def test_config_influx_missing():
+    config = """
+        url: https://influxdb.kysa.me/
+        org: kysa.me
+        bucket: FartCHECKER
+    """
+    with pytest.raises(Exception):
+        result, _ = gas_sensor.loadConfig(config)
+
+
 def test_config_influx_missing_field():
     config = """
     - influxdb:
@@ -27,5 +37,5 @@ def test_config_influx_missing_field():
         org: kysa.me
         bucket: FartCHECKER
     """
-    with pytest.raises():
+    with pytest.raises(Exception):
         result, _ = gas_sensor.loadConfig(config)
