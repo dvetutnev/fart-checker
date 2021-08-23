@@ -4,7 +4,7 @@ import pytest
 
 def test_config_influx():
     config = """
-    - influxdb:
+    influxdb:
         url: https://influxdb.kysa.me/
         org: kysa.me
         bucket: FartCHECKER
@@ -33,7 +33,7 @@ def test_config_influx_missing():
 
 def test_config_influx_missing_field():
     config = """
-    - influxdb:
+    influxdb:
         url: https://influxdb.kysa.me/
         org: kysa.me
         bucket: FartCHECKER

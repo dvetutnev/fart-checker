@@ -59,10 +59,8 @@ def loadInfluxConfig(conf):
 def loadConfig(source):
     conf = yaml.load(source)
 
-    for confInflux in filter(lambda d: "influxdb" in d, conf):
-        influx = loadInfluxConfig(confInflux["influxdb"])
-        break
-    else:
+    if "influxdb" not in conf:
         raise Exception("Invalid config, not found 'influxdb'")
+    influx = loadInfluxConfig(conf["influxdb"])
 
     return influx, []
