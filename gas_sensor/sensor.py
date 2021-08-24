@@ -45,16 +45,16 @@ class ZE03(BaseSensor):
     _READ_CMD = b"\xFF\x01\x86\x00\x00\x00\x00\x00\x79"
 
 
-    def __init__(self, name):
-        self._name = name
+    def __init__(self, gas):
+        self._gas = gas
 
-        if name in (Gas.CO, Gas.NH3, Gas.H2S, Gas.HF):
+        if gas in (Gas.CO, Gas.NH3, Gas.H2S, Gas.HF):
             self._factor = 1
-        elif name in (Gas.O2, Gas.NO2, Gas.SO2, Gas.O3, Gas.CL2):
-            raise Exception("Unknown sensor type '%s'" % name)
+        elif gas in (Gas.O2, Gas.NO2, Gas.SO2, Gas.O3, Gas.CL2):
+            raise Exception("Unknown sensor type '%s'" % gas)
 
 
     def parsePacket(self, packet):
         value = int(packet[2]) * 256 + int(packet[3])
         value *= self._factor
-        return Measure(self._name, value)
+        return Measure(self._gas, value)
