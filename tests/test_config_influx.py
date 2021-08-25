@@ -1,4 +1,6 @@
 import gas_sensor
+from gas_sensor import Gas
+
 import serial
 
 import pytest
@@ -77,3 +79,5 @@ def test_config_sensors():
 
         assert result[0].sensor == sensor1
         assert result[1].sensor == sensor2
+
+        assert ZE03Class.call_args_list == [call(Gas.H2S), call(Gas.CO)]
