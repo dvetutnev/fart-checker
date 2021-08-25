@@ -7,17 +7,18 @@ import gas_sensor
 from gas_sensor import Gas
 
 import yaml
+import serial.tools.list_ports
 
 
 class PortConfig:
 
-    def __init__(self, path, sensor):
-        self._path = path
+    def __init__(self, device, sensor):
+        self._device = device
         self._sensor = sensor
 
     @property
-    def path(self):
-        return self._path
+    def device(self):
+        return self._device
 
     @property
     def sensor(self):
@@ -67,8 +68,13 @@ def createSensor(model):
 
 
 def loadPortConfig(conf):
-    sensor = createSensor(conf["model"])
-    return PortConfig("/dev/null", sensor)
+    listPortInfo = serial.tools.list_ports.comports()
+    for portInfo in filter(lambda portInfo: portInfo.location == conf["location"], listPortInfo):
+        device = portInfo.device
+        sensor = createSensor(conf["model"])
+        return PortConfig(device, sensor)
+    else:
+        return None
 
 
 def loadConfig(source):
@@ -78,6 +84,10 @@ def loadConfig(source):
         raise Exception("Invalid config, not found 'influxdb'")
     influx = loadInfluxConfig(conf["influxdb"])
 
-    ports = list(map(loadPortConfig, conf["sensors"]))
+    ports = []
+    for portConf in conf["sensors"]:
+        port = loadPortConfig(portConf)
+        if port:
+            ports.append(port)
 
     return influx, ports
