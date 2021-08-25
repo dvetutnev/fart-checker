@@ -84,6 +84,8 @@ def loadConfig(source):
         raise Exception("Invalid config, not found 'influxdb'")
     influx = loadInfluxConfig(conf["influxdb"])
 
+    if "sensors" not in conf:
+        raise Exception("Invalid config, not found 'sensors'")
     ports = []
     for portConf in conf["sensors"]:
         port = loadPortConfig(portConf)

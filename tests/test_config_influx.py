@@ -110,7 +110,7 @@ def test_config_sensors_skip_not_found():
           location: 1-3.3.2.54
     """
     with patch("gas_sensor.ZE03") as ZE03Class, \
-            patch("serial.tools.list_ports.comports") as comports:
+         patch("serial.tools.list_ports.comports") as comports:
         sensor1, sensor2 = Mock(gas_sensor.ZE03), Mock(gas_sensor.ZE03)
         ZE03Class.side_effect = [sensor1, sensor2]
 
@@ -123,3 +123,16 @@ def test_config_sensors_skip_not_found():
         _, result = gas_sensor.loadConfig(config)
 
         assert len(result) == 1
+
+
+def test_config_without_sensors():
+    config = """
+    influxdb:
+        url: https://influxdb.kysa.me/
+        org: kysa.me
+        bucket: FartCHECKER
+        token: t0ken
+    """
+    with pytest.raises(Exception) as ex:
+        gas_sensor.loadConfig(config)
+    print(ex)
