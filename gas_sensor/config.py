@@ -68,7 +68,12 @@ def createSensor(model):
 
 
 def loadPortConfig(conf):
+    for key in ("model", "location"):
+        if key not in conf:
+            raise Exception("Invalid config, not found 'sensor: {0}'".format(key))
+
     listPortInfo = serial.tools.list_ports.comports()
+
     for portInfo in filter(lambda portInfo: portInfo.location == conf["location"], listPortInfo):
         device = portInfo.device
         sensor = createSensor(conf["model"])

@@ -136,3 +136,33 @@ def test_config_without_sensors():
     with pytest.raises(Exception) as ex:
         gas_sensor.loadConfig(config)
     print(ex)
+
+
+def test_config_sensors_missing_model():
+    config = """
+    influxdb:
+        url: https://influxdb.kysa.me/
+        org: kysa.me
+        bucket: FartCHECKER
+        token: t0ken
+    sensors:
+        - location: 1-3.88
+    """
+    with pytest.raises(Exception) as ex:
+        gas_sensor.loadConfig(config)
+    print(ex)
+
+
+def test_config_sensors_missing_location():
+    config = """
+    influxdb:
+        url: https://influxdb.kysa.me/
+        org: kysa.me
+        bucket: FartCHECKER
+        token: t0ken
+    sensors:
+        - model: ZE03-SO2
+    """
+    with pytest.raises(Exception) as ex:
+        gas_sensor.loadConfig(config)
+    print(ex)
