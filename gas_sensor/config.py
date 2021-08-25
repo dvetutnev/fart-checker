@@ -3,23 +3,25 @@ loadConfig(stream): -> InfluxConfig, [PortConfig]
 """
 
 
+import gas_sensor
 from gas_sensor import Gas
+
 import yaml
 
 
 class PortConfig:
 
-    def __init__(self, path, name):
+    def __init__(self, path, sensor):
         self._path = path
-        self._name = name
+        self._sensor = sensor
 
     @property
     def path(self):
         return self._path
 
     @property
-    def name(self):
-        return self._name
+    def sensor(self):
+        return self._sensor
 
 
 class InfluxConfig:
@@ -56,6 +58,19 @@ def loadInfluxConfig(conf):
     return InfluxConfig(conf["url"], conf["org"], conf["bucket"], conf["token"])
 
 
+def createSensor(model):
+    name, gas = model.split("-")
+    if name == "ZE03":
+        return gas_sensor.ZE03(Gas[gas])
+    else:
+        raise Exception("Invalid sensor model '{0}'".format(model))
+
+
+def loadPortConfig(conf):
+    sensor = createSensor(conf["model"])
+    return PortConfig("/dev/null", sensor)
+
+
 def loadConfig(source):
     conf = yaml.load(source)
 
@@ -63,4 +78,6 @@ def loadConfig(source):
         raise Exception("Invalid config, not found 'influxdb'")
     influx = loadInfluxConfig(conf["influxdb"])
 
-    return influx, []
+    ports = list(map(loadPortConfig, conf["sensors"]))
+
+    return influx, ports
