@@ -52,6 +52,15 @@ class PageInflux:
         return self._compositeWidget
 
 
+class UI:
+    def __init__(self, asyncioLoop):
+        evl = urwid.AsyncioEventLoop(loop=asyncioLoop)
+        self._mainLoop = urwid.MainLoop(pageInflux.widget, palette, event_loop=evl, unhandled_input=unhandled_input)
+
+    def run(self):
+        self._mainLoop.run()
+
+
 if __name__ == "__main__":
 
     pageInflux = PageInflux()
@@ -61,15 +70,6 @@ if __name__ == "__main__":
     ]
 
     asyncioLoop = asyncio.get_event_loop()
-    evl = urwid.AsyncioEventLoop(loop=asyncioLoop)
 
-    mainLoop = urwid.MainLoop(pageInflux.widget, palette, event_loop=evl, unhandled_input=unhandled_input)
-
-    #port = aserial.ASerial("/dev/ttyUSB0", 9600)
-    #sensor = gas_sensor.ZE03(gas_sensor.Gas.CO)
-    # def dashBoard(measure):
-    #     txt.set_text(str(measure))
-    #
-    # asyncioLoop.create_task(gas_sensor.readSensor(port, sensor, dashBoard))
-
-    mainLoop.run()
+    ui = UI(asyncioLoop)
+    ui.run()
