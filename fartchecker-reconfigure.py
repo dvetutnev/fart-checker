@@ -54,21 +54,22 @@ class PageInflux:
 
 class UI:
     def __init__(self, asyncioLoop):
+        self._pageInflux = PageInflux()
+
         evl = urwid.AsyncioEventLoop(loop=asyncioLoop)
-        self._mainLoop = urwid.MainLoop(pageInflux.widget, palette, event_loop=evl, unhandled_input=unhandled_input)
+
+        palette = [
+            ("focus", "dark gray", "dark green")
+        ]
+
+        self._mainLoop = urwid.MainLoop(self._pageInflux.widget, palette, event_loop=evl, unhandled_input=unhandled_input)
+
 
     def run(self):
         self._mainLoop.run()
 
 
 if __name__ == "__main__":
-
-    pageInflux = PageInflux()
-
-    palette = [
-        ("focus", "dark gray", "dark green")
-    ]
-
     asyncioLoop = asyncio.get_event_loop()
 
     ui = UI(asyncioLoop)
