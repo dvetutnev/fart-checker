@@ -78,11 +78,10 @@ class UI:
         self._pageInflux = PageInflux()
         self._pageSensors = PageSensors()
 
-        evl = urwid.AsyncioEventLoop(loop=asyncioLoop)
-
         palette = [
             ("focus", "dark gray", "dark green")
         ]
+        evl = urwid.AsyncioEventLoop(loop=asyncioLoop)
 
         self._mainLoop = urwid.MainLoop(self._pageInflux, palette, event_loop=evl, unhandled_input=unhandled_input)
 
