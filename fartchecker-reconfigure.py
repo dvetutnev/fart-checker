@@ -21,7 +21,7 @@ class PageInflux:
         self._widgetToken = urwid.Edit("token")
 
         self._buttonNext = urwid.Button("Next")
-        self._buttonExit = urwid.Button("Exit")
+        self._buttonCancel = urwid.Button("Cancel")
 
         def packWidget(w):
             return urwid.Filler(urwid.AttrMap(w, None, "focus"))
@@ -36,11 +36,40 @@ class PageInflux:
 
                     urwid.Columns([
                         packWidget(self._buttonNext),
-                        packWidget(self._buttonExit)
+                        packWidget(self._buttonCancel)
                     ])
-                ], focus_item=1),
+                ], focus_item=0),
 
                 title="InfluxDB"),
+
+            urwid.SolidFill(),
+
+            align="center", valign="middle", width=50, height=15
+        )
+
+    @property
+    def widget(self):
+        return self._compositeWidget
+
+
+class PageSensors:
+    def __init__(self):
+        self._buttonBack = urwid.Button("Back")
+        self._buttonExit = urwid.Button("Exit")
+        self._buttonCancel = urwid.Button("Cancel")
+
+        def packWidget(w):
+            return urwid.Filler(urwid.AttrMap(w, None, "focus"))
+
+        self._compositeWidget = urwid.Overlay(
+            urwid.LineBox(
+                urwid.Columns([
+                    packWidget(self._buttonBack),
+                    packWidget(self._buttonExit),
+                    packWidget(self._buttonCancel)
+                ], focus_column=1),
+
+                title="Sensors"),
 
             urwid.SolidFill(),
 
@@ -55,6 +84,7 @@ class PageInflux:
 class UI:
     def __init__(self, asyncioLoop):
         self._pageInflux = PageInflux()
+        self._pageSensors = PageSensors()
 
         evl = urwid.AsyncioEventLoop(loop=asyncioLoop)
 
@@ -62,7 +92,7 @@ class UI:
             ("focus", "dark gray", "dark green")
         ]
 
-        self._mainLoop = urwid.MainLoop(self._pageInflux.widget, palette, event_loop=evl, unhandled_input=unhandled_input)
+        self._mainLoop = urwid.MainLoop(self._pageSensors.widget, palette, event_loop=evl, unhandled_input=unhandled_input)
 
 
     def run(self):
