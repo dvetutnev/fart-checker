@@ -14,9 +14,9 @@ def packWidget(w):
 
 class PageInflux(urwid.WidgetWrap):
     def __init__(self):
-        self._widgetUrl = urwid.Edit("url", "https://")
         self._widgetOrg = urwid.Edit("org", "kysa.me")
         self._widgetBucket = urwid.Edit("bucket", "FartCHECKER")
+        self._widgetUrl = urwid.Edit("url", "https://")
         self._widgetToken = urwid.Edit("token")
 
         self._buttonNext = urwid.Button("Next")
@@ -25,9 +25,9 @@ class PageInflux(urwid.WidgetWrap):
         compositeWidget = urwid.Overlay(
             urwid.LineBox(
                 urwid.Pile([
-                    (1, packWidget(self._widgetUrl)),
                     (1, packWidget(self._widgetOrg)),
                     (1, packWidget(self._widgetBucket)),
+                    (1, packWidget(self._widgetUrl)),
                     (1, packWidget(self._widgetToken)),
 
                     urwid.Columns([
