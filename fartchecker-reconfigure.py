@@ -44,6 +44,10 @@ class PageInflux(urwid.WidgetWrap):
         )
         urwid.WidgetWrap.__init__(self, compositeWidget)
 
+        urwid.register_signal(self.__class__, ["page_next"])
+        urwid.connect_signal(self._buttonNext, "click", lambda _: urwid.emit_signal(self, "page_next"))
+
+
 
 class PageSensors(urwid.WidgetWrap):
     def __init__(self):
@@ -67,6 +71,10 @@ class PageSensors(urwid.WidgetWrap):
         )
         urwid.WidgetWrap.__init__(self, compositeWidget)
 
+        urwid.register_signal(self.__class__, ["page_back"])
+        urwid.connect_signal(self._buttonBack, "click", lambda _: urwid.emit_signal(self, "page_back"))
+
+
 
 def unhandled_input(key):
     if key == "esc":
@@ -84,6 +92,16 @@ class UI:
         evl = urwid.AsyncioEventLoop(loop=asyncioLoop)
 
         self._mainLoop = urwid.MainLoop(self._pageInflux, palette, event_loop=evl, unhandled_input=unhandled_input)
+
+        urwid.connect_signal(self._pageInflux, "page_next", self._page_next, weak_args=[self])
+        urwid.connect_signal(self._pageSensors, "page_back", self._page_back, weak_args=[self])
+
+
+    def _page_next(self, _):
+        self._mainLoop.widget = self._pageSensors
+
+    def _page_back(self, _):
+        self._mainLoop.widget = self._pageInflux
 
     def run(self):
         self._mainLoop.run()
