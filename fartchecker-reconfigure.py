@@ -8,9 +8,8 @@ import aserial
 import gas_sensor
 
 
-def unhandled_input(key):
-    if key == "esc":
-        raise urwid.ExitMainLoop()
+def packWidget(w):
+    return urwid.Filler(urwid.AttrMap(w, None, "focus"))
 
 
 class PageInflux(urwid.WidgetWrap):
@@ -22,9 +21,6 @@ class PageInflux(urwid.WidgetWrap):
 
         self._buttonNext = urwid.Button("Next")
         self._buttonCancel = urwid.Button("Cancel")
-
-        def packWidget(w):
-            return urwid.Filler(urwid.AttrMap(w, None, "focus"))
 
         compositeWidget = urwid.Overlay(
             urwid.LineBox(
@@ -55,9 +51,6 @@ class PageSensors(urwid.WidgetWrap):
         self._buttonExit = urwid.Button("Exit")
         self._buttonCancel = urwid.Button("Cancel")
 
-        def packWidget(w):
-            return urwid.Filler(urwid.AttrMap(w, None, "focus"))
-
         compositeWidget = urwid.Overlay(
             urwid.LineBox(
                 urwid.Columns([
@@ -75,6 +68,11 @@ class PageSensors(urwid.WidgetWrap):
         urwid.WidgetWrap.__init__(self, compositeWidget)
 
 
+def unhandled_input(key):
+    if key == "esc":
+        raise urwid.ExitMainLoop()
+
+
 class UI:
     def __init__(self, asyncioLoop):
         self._pageInflux = PageInflux()
@@ -87,7 +85,6 @@ class UI:
         ]
 
         self._mainLoop = urwid.MainLoop(self._pageInflux, palette, event_loop=evl, unhandled_input=unhandled_input)
-
 
     def run(self):
         self._mainLoop.run()
