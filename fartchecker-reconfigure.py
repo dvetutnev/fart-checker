@@ -13,7 +13,7 @@ def unhandled_input(key):
         raise urwid.ExitMainLoop()
 
 
-class PageInflux:
+class PageInflux(urwid.WidgetWrap):
     def __init__(self):
         self._widgetUrl = urwid.Edit("url", "https://")
         self._widgetOrg = urwid.Edit("org", "kysa.me")
@@ -26,7 +26,7 @@ class PageInflux:
         def packWidget(w):
             return urwid.Filler(urwid.AttrMap(w, None, "focus"))
 
-        self._compositeWidget = urwid.Overlay(
+        compositeWidget = urwid.Overlay(
             urwid.LineBox(
                 urwid.Pile([
                     (1, packWidget(self._widgetUrl)),
@@ -46,13 +46,10 @@ class PageInflux:
 
             align="center", valign="middle", width=50, height=15
         )
-
-    @property
-    def widget(self):
-        return self._compositeWidget
+        urwid.WidgetWrap.__init__(self, compositeWidget)
 
 
-class PageSensors:
+class PageSensors(urwid.WidgetWrap):
     def __init__(self):
         self._buttonBack = urwid.Button("Back")
         self._buttonExit = urwid.Button("Exit")
@@ -61,7 +58,7 @@ class PageSensors:
         def packWidget(w):
             return urwid.Filler(urwid.AttrMap(w, None, "focus"))
 
-        self._compositeWidget = urwid.Overlay(
+        compositeWidget = urwid.Overlay(
             urwid.LineBox(
                 urwid.Columns([
                     packWidget(self._buttonBack),
@@ -75,10 +72,7 @@ class PageSensors:
 
             align="center", valign="middle", width=50, height=15
         )
-
-    @property
-    def widget(self):
-        return self._compositeWidget
+        urwid.WidgetWrap.__init__(self, compositeWidget)
 
 
 class UI:
@@ -92,7 +86,7 @@ class UI:
             ("focus", "dark gray", "dark green")
         ]
 
-        self._mainLoop = urwid.MainLoop(self._pageSensors.widget, palette, event_loop=evl, unhandled_input=unhandled_input)
+        self._mainLoop = urwid.MainLoop(self._pageInflux, palette, event_loop=evl, unhandled_input=unhandled_input)
 
 
     def run(self):
