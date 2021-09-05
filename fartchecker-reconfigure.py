@@ -64,7 +64,8 @@ class PageInflux(urwid.WidgetWrap):
                                 addAttrFocus(self._buttonNext),
                                 addAttrFocus(self._buttonCancel)
                             ])
-                        ])
+                        ]),
+                        title="InfluxDB"
                     )
                 ),
                 urwid.SolidFill(),
@@ -84,13 +85,14 @@ class PageSensors(urwid.PopUpLauncher):
         self._buttonExit = urwid.Button("Exit")
         self._buttonCancel = urwid.Button("Cancel")
 
-        compositeWidget = urwid.Overlay(
-            urwid.LineBox(
-                urwid.Columns([
-                    packWidget(self._buttonBack),
-                    packWidget(self._buttonExit),
-                    packWidget(self._buttonCancel)
-                ], focus_column=1),
+        compositeWidget = \
+            urwid.Overlay(
+                urwid.LineBox(
+                    urwid.Columns([
+                        packWidget(self._buttonBack),
+                        packWidget(self._buttonExit),
+                        packWidget(self._buttonCancel)
+                    ], focus_column=1),
 
                 title="Sensors"),
 
