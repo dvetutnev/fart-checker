@@ -8,11 +8,11 @@ import aserial
 import gas_sensor
 
 
-def addFocusAttr(w):
+def addAttrFocus(w):
     return urwid.AttrMap(w, None, "focus")
 
 def packWidget(w):
-    return urwid.Filler(addFocusAttr(w))
+    return urwid.Filler(addAttrFocus(w))
 
 
 class ExitDialog(urwid.WidgetWrap):
@@ -25,8 +25,8 @@ class ExitDialog(urwid.WidgetWrap):
                 urwid.Pile([
                     urwid.Text("Exit without save?"),
                     urwid.Columns([
-                        addFocusAttr(buttonYes),
-                        addFocusAttr(buttonNo)
+                        addAttrFocus(buttonYes),
+                        addAttrFocus(buttonNo)
                     ])
                 ])
 
