@@ -11,6 +11,9 @@ import gas_sensor
 def addAttrFocus(w):
     return urwid.AttrMap(w, None, "focus")
 
+def packWidget(w):
+    return urwid.Filler(addAttrFocus(w))
+
 
 class ExitDialog(urwid.WidgetWrap):
     def __init__(self):
@@ -34,6 +37,7 @@ class ExitDialog(urwid.WidgetWrap):
         urwid.register_signal(self.__class__, ["exit_yes", "exit_no"])
         urwid.connect_signal(buttonYes, "click", lambda _: self._emit("exit_yes"))
         urwid.connect_signal(buttonNo, "click", lambda _: self._emit("exit_no"))
+
 
 
 class PageInflux(urwid.WidgetWrap):
@@ -74,6 +78,7 @@ class PageInflux(urwid.WidgetWrap):
         urwid.connect_signal(self._buttonNext, "click", lambda _: self._emit("page_next"))
 
 
+
 class PageSensors(urwid.PopUpLauncher):
     def __init__(self):
         self._buttonBack = urwid.Button("Back")
@@ -82,18 +87,19 @@ class PageSensors(urwid.PopUpLauncher):
 
         compositeWidget = \
             urwid.Overlay(
-                urwid.Filler(
-                    urwid.LineBox(
-                        urwid.Columns([
-                            addAttrFocus(self._buttonBack),
-                            addAttrFocus(self._buttonExit),
-                            addAttrFocus(self._buttonCancel)
-                        ], focus_column=1),
-                    title="Sensors"),
-                ),
-                urwid.SolidFill(),
-                align="center", valign="middle", width=50, height=15
-            )
+                urwid.LineBox(
+                    urwid.Columns([
+                        packWidget(self._buttonBack),
+                        packWidget(self._buttonExit),
+                        packWidget(self._buttonCancel)
+                    ], focus_column=1),
+
+                title="Sensors"),
+
+            urwid.SolidFill(),
+
+            align="center", valign="middle", width=50, height=15
+        )
 
         super().__init__(compositeWidget)
 
