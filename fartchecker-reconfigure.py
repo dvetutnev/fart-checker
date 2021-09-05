@@ -8,8 +8,36 @@ import aserial
 import gas_sensor
 
 
+def addFocusAttr(w):
+    return urwid.AttrMap(w, None, "focus")
+
 def packWidget(w):
-    return urwid.Filler(urwid.AttrMap(w, None, "focus"))
+    return urwid.Filler(addFocusAttr(w))
+
+
+class ExitDialog(urwid.WidgetWrap):
+    def __init__(self):
+        buttonYes = urwid.Button("Yes")
+        buttonNo = urwid.Button("No")
+
+        compositeWidget = \
+            urwid.Filler(
+                urwid.Pile(
+                    urwid.Text("Exit without save?"),
+                    urwid.Columns(
+                        addFocusAttr(buttonYes),
+                        addFocusAttr(buttonNo)
+                    )
+                )
+
+        )
+
+        self.__super__.__init__(compositeWidget)
+
+        urwid.register_signal(self.__class__, ["exit_yes", "exit_no"])
+        urwid.connect_signal(buttonYes, "click", lambda _: self._emit("exit_yes"))
+        urwid.connect_signal(buttonNo, "click", lambda _: self._emit("exit_no"))
+
 
 
 class PageInflux(urwid.WidgetWrap):
