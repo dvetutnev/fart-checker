@@ -50,26 +50,26 @@ class PageInflux(urwid.WidgetWrap):
         self._buttonNext = urwid.Button("Next")
         self._buttonCancel = urwid.Button("Cancel")
 
-        compositeWidget = urwid.Overlay(
-            urwid.LineBox(
-                urwid.Pile([
-                    (1, packWidget(self._widgetOrg)),
-                    (1, packWidget(self._widgetBucket)),
-                    (1, packWidget(self._widgetUrl)),
-                    (1, packWidget(self._widgetToken)),
+        compositeWidget = \
+            urwid.Overlay(
+                urwid.Filler(
+                    urwid.LineBox(
+                        urwid.Pile([
+                            ("pack", addAttrFocus(self._widgetOrg)),
+                            ("pack", addAttrFocus(self._widgetBucket)),
+                            ("pack", addAttrFocus(self._widgetUrl)),
+                            ("pack", addAttrFocus(self._widgetToken)),
 
-                    urwid.Columns([
-                        packWidget(self._buttonNext),
-                        packWidget(self._buttonCancel)
-                    ])
-                ], focus_item=0),
-
-                title="InfluxDB"),
-
-            urwid.SolidFill(),
-
-            align="center", valign="middle", width=50, height=15
-        )
+                            urwid.Columns([
+                                addAttrFocus(self._buttonNext),
+                                addAttrFocus(self._buttonCancel)
+                            ])
+                        ])
+                    )
+                ),
+                urwid.SolidFill(),
+                align="center", valign="middle", width=50, height=15
+            )
 
         super().__init__(compositeWidget)
 
