@@ -42,10 +42,10 @@ class ExitDialog(urwid.WidgetWrap):
 
 class PageInflux(urwid.WidgetWrap):
     def __init__(self):
-        self._widgetOrg = urwid.Edit("org", "kysa.me")
-        self._widgetBucket = urwid.Edit("bucket", "FartCHECKER")
-        self._widgetUrl = urwid.Edit("url", "https://")
-        self._widgetToken = urwid.Edit("token")
+        self._editOrg = urwid.Edit("org", "kysa.me")
+        self._editBucket = urwid.Edit("bucket", "FartCHECKER")
+        self._editUrl = urwid.Edit("url", "https://")
+        self._editToken = urwid.Edit("token")
 
         self._buttonNext = urwid.Button("Next")
         self._buttonCancel = urwid.Button("Cancel")
@@ -55,10 +55,10 @@ class PageInflux(urwid.WidgetWrap):
                 urwid.Filler(
                     urwid.LineBox(
                         urwid.Pile([
-                            ("pack", addAttrFocus(self._widgetOrg)),
-                            ("pack", addAttrFocus(self._widgetBucket)),
-                            ("pack", addAttrFocus(self._widgetUrl)),
-                            ("pack", addAttrFocus(self._widgetToken)),
+                            ("pack", addAttrFocus(self._editOrg)),
+                            ("pack", addAttrFocus(self._editBucket)),
+                            ("pack", addAttrFocus(self._editUrl)),
+                            ("pack", addAttrFocus(self._editToken)),
 
                             urwid.Columns([
                                 addAttrFocus(self._buttonNext),
