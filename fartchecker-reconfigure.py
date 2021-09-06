@@ -11,9 +11,6 @@ import gas_sensor
 def addAttrFocus(w):
     return urwid.AttrMap(w, None, "focus")
 
-def packWidget(w):
-    return urwid.Filler(addAttrFocus(w))
-
 
 class ExitDialog(urwid.WidgetWrap):
     def __init__(self):
@@ -51,26 +48,20 @@ class PageInflux(urwid.WidgetWrap):
         self._buttonCancel = urwid.Button("Cancel")
 
         compositeWidget = \
-            urwid.Overlay(
-                urwid.Filler(
-                    urwid.LineBox(
-                        urwid.Pile([
-                            ("pack", addAttrFocus(self._editOrg)),
-                            ("pack", addAttrFocus(self._editBucket)),
-                            ("pack", addAttrFocus(self._editUrl)),
-                            ("pack", addAttrFocus(self._editToken)),
+            urwid.LineBox(
+                urwid.Pile([
+                    ("pack", addAttrFocus(self._editOrg)),
+                    ("pack", addAttrFocus(self._editBucket)),
+                    ("pack", addAttrFocus(self._editUrl)),
+                    ("pack", addAttrFocus(self._editToken)),
 
-                            urwid.Columns([
-                                addAttrFocus(self._buttonNext),
-                                addAttrFocus(self._buttonCancel)
-                            ])
-                        ]),
-                        title="InfluxDB"
-                    )
-                ),
-                urwid.SolidFill(),
-                align="center", valign="middle", width=50, height=15
-            )
+                    urwid.Columns([
+                       addAttrFocus(self._buttonNext),
+                       addAttrFocus(self._buttonCancel)
+                    ])
+                ]),
+                title="InfluxDB"
+        )
 
         super().__init__(compositeWidget)
 
@@ -86,20 +77,15 @@ class PageSensors(urwid.PopUpLauncher):
         self._buttonCancel = urwid.Button("Cancel")
 
         compositeWidget = \
-            urwid.Overlay(
-                urwid.LineBox(
-                    urwid.Columns([
-                        packWidget(self._buttonBack),
-                        packWidget(self._buttonExit),
-                        packWidget(self._buttonCancel)
-                    ], focus_column=1),
-
-                title="Sensors"),
-
-            urwid.SolidFill(),
-
-            align="center", valign="middle", width=50, height=15
-        )
+            urwid.LineBox(
+                urwid.Columns([
+                    addAttrFocus(self._buttonBack),
+                    addAttrFocus(self._buttonExit),
+                    addAttrFocus(self._buttonCancel)
+                ],
+                    focus_column=1),
+                title="Sensors"
+            )
 
         super().__init__(compositeWidget)
 
@@ -136,22 +122,32 @@ class UI:
         self._pageInflux = PageInflux()
         self._pageSensors = PageSensors()
 
+        def packWidget(w):
+            return urwid.Overlay(
+                   urwid.Filler(w),
+                   urwid.SolidFill(),
+                   align="center", valign="middle", width=50, height=15
+            )
+
+        self._widgets = {
+            "influx": packWidget(self._pageInflux),
+            "sensors": packWidget(self._pageSensors)
+        }
+
         palette = [
             ("focus", "dark gray", "dark green")
         ]
         evl = urwid.AsyncioEventLoop(loop=asyncioLoop)
 
-        self._mainLoop = urwid.MainLoop(self._pageInflux, palette,
+        self._mainLoop = urwid.MainLoop(self._widgets["influx"], palette,
                                         event_loop=evl, unhandled_input=unhandled_input, pop_ups=True)
+        def modeSensors(_):
+            self._mainLoop.widget = self._widgets["sensors"]
+        urwid.connect_signal(self._pageInflux, "page_next", modeSensors)
 
-        urwid.connect_signal(self._pageInflux, "page_next", self._page_next, weak_args=[self])
-        urwid.connect_signal(self._pageSensors, "page_back", self._page_back, weak_args=[self])
-
-    def _page_next(self, _1, _2):
-        self._mainLoop.widget = self._pageSensors
-
-    def _page_back(self, _1, _2):
-        self._mainLoop.widget = self._pageInflux
+        def modeInflux():
+            self._mainLoop.widget = self._widgets["influx"]
+        urwid.connect_signal(self._pageSensors, "page_back", modeInflux)
 
     def run(self):
         self._mainLoop.run()
