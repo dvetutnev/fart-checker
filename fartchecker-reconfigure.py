@@ -37,7 +37,7 @@ class ExitDialog(urwid.WidgetWrap):
 
 
 
-class PageInflux(urwid.WidgetWrap):
+class PageInflux(urwid.PopUpLauncher):
     def __init__(self):
         self._editUrl = urwid.Edit("url:    ", "https://")
         self._editOrg = urwid.Edit("org:    ", "kysa.me")
@@ -70,6 +70,24 @@ class PageInflux(urwid.WidgetWrap):
         urwid.register_signal(self.__class__, ["page_next"])
         urwid.connect_signal(self._buttonNext, "click", lambda _: self._emit("page_next"))
 
+        urwid.connect_signal(self._buttonCancel, "click", lambda _: self.open_pop_up())
+
+    def create_pop_up(self):
+        dialog = ExitDialog()
+
+        def exit_yes(_):
+            raise urwid.ExitMainLoop()
+
+        def exit_no(_):
+            self.close_pop_up()
+
+        urwid.connect_signal(dialog, "exit_yes", exit_yes)
+        urwid.connect_signal(dialog, "exit_no", exit_no)
+
+        return dialog
+
+    def get_pop_up_parameters(self):
+        return {'left': 0, 'top': 1, 'overlay_width': 32, 'overlay_height': 7}
 
 
 class PageSensors(urwid.PopUpLauncher):
