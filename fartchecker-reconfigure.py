@@ -39,10 +39,10 @@ class ExitDialog(urwid.WidgetWrap):
 
 class PageInflux(urwid.WidgetWrap):
     def __init__(self):
-        self._editOrg = urwid.Edit("org", "kysa.me")
-        self._editBucket = urwid.Edit("bucket", "FartCHECKER")
-        self._editUrl = urwid.Edit("url", "https://")
-        self._editToken = urwid.Edit("token")
+        self._editUrl = urwid.Edit("url:    ", "https://")
+        self._editOrg = urwid.Edit("org:    ", "kysa.me")
+        self._editBucket = urwid.Edit("bucket: ", "FartCHECKER")
+        self._editToken = urwid.Edit("token:  ")
 
         self._buttonNext = urwid.Button("Next")
         self._buttonCancel = urwid.Button("Cancel")
@@ -50,14 +50,16 @@ class PageInflux(urwid.WidgetWrap):
         compositeWidget = \
             urwid.LineBox(
                 urwid.Pile([
+                    ("pack", addAttrFocus(self._editUrl)),
                     ("pack", addAttrFocus(self._editOrg)),
                     ("pack", addAttrFocus(self._editBucket)),
-                    ("pack", addAttrFocus(self._editUrl)),
-                    ("pack", addAttrFocus(self._editToken)),
+                    (3, urwid.Filler(addAttrFocus(self._editToken), "top")),
+
+                    urwid.Divider(),
 
                     urwid.Columns([
-                       addAttrFocus(self._buttonNext),
-                       addAttrFocus(self._buttonCancel)
+                       urwid.Padding(addAttrFocus(self._buttonNext), "center", width=15),
+                       urwid.Padding(addAttrFocus(self._buttonCancel), "center", width=15)
                     ])
                 ]),
                 title="InfluxDB"
@@ -126,7 +128,7 @@ class UI:
             return urwid.Overlay(
                    urwid.Filler(w),
                    urwid.SolidFill(),
-                   align="center", valign="middle", width=50, height=15
+                   align="center", valign="middle", width=60, height=20
             )
 
         self._widgets = {
