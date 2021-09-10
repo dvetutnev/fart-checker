@@ -19,15 +19,19 @@ class ExitDialog(urwid.WidgetWrap):
 
         compositeWidget = \
             urwid.Filler(
-                urwid.Pile([
-                    urwid.Text("Exit without save?"),
-                    urwid.Columns([
-                        addAttrFocus(buttonYes),
-                        addAttrFocus(buttonNo)
-                    ])
-                ])
+                urwid.LineBox(
+                    urwid.Pile([
+                        urwid.Padding(urwid.Text("Exit without save?"), align="center", width="pack"),
 
-        )
+                        urwid.Divider(),
+
+                        urwid.Columns([
+                            urwid.Padding(addAttrFocus(buttonYes), align="center", width=8),
+                            urwid.Padding(addAttrFocus(buttonNo), align="center", width=8)
+                        ])
+                    ])
+                )
+            )
 
         super().__init__(compositeWidget)
 
@@ -55,7 +59,7 @@ class BasePage(urwid.PopUpLauncher):
         return dialog
 
     def get_pop_up_parameters(self):
-        return {'left': 0, 'top': 1, 'overlay_width': 32, 'overlay_height': 7}
+        return {'left': 10, 'top': 1, 'overlay_width': 32, 'overlay_height': 7}
 
 
 class PageInflux(BasePage):
