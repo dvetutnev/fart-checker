@@ -47,14 +47,8 @@ class BasePage(urwid.PopUpLauncher):
     def create_pop_up(self):
         dialog = ExitDialog()
 
-        def exit_yes(_):
-            self._emit("exit_without_save")
-
-        def exit_no(_):
-            self.close_pop_up()
-
-        urwid.connect_signal(dialog, "exit_yes", exit_yes)
-        urwid.connect_signal(dialog, "exit_no", exit_no)
+        urwid.connect_signal(dialog, "exit_yes", lambda _: self._emit("exit_without_save"))
+        urwid.connect_signal(dialog, "exit_no", lambda _: self.close_pop_up())
 
         return dialog
 
