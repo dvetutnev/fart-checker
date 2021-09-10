@@ -147,7 +147,7 @@ class UI:
             self._mainLoop.widget = self._widgets["sensors"]
         urwid.connect_signal(self._pageInflux, "page_next", modeSensors)
 
-        def modeInflux():
+        def modeInflux(_):
             self._mainLoop.widget = self._widgets["influx"]
         urwid.connect_signal(self._pageSensors, "page_back", modeInflux)
 
