@@ -58,8 +58,8 @@ class PageInflux(urwid.WidgetWrap):
                     urwid.Divider(),
 
                     urwid.Columns([
-                       urwid.Padding(addAttrFocus(self._buttonNext), "center", width=15),
-                       urwid.Padding(addAttrFocus(self._buttonCancel), "center", width=15)
+                       urwid.Padding(addAttrFocus(self._buttonNext), "center", width=17),
+                       urwid.Padding(addAttrFocus(self._buttonCancel), "center", width=17)
                     ])
                 ]),
                 title="InfluxDB"
@@ -75,15 +75,15 @@ class PageInflux(urwid.WidgetWrap):
 class PageSensors(urwid.PopUpLauncher):
     def __init__(self):
         self._buttonBack = urwid.Button("Back")
-        self._buttonExit = urwid.Button("Exit")
+        self._buttonExit = urwid.Button("Save and exit")
         self._buttonCancel = urwid.Button("Cancel")
 
         compositeWidget = \
             urwid.LineBox(
                 urwid.Columns([
-                    addAttrFocus(self._buttonBack),
-                    addAttrFocus(self._buttonExit),
-                    addAttrFocus(self._buttonCancel)
+                    urwid.Padding(addAttrFocus(self._buttonBack), "center", width=17),
+                    urwid.Padding(addAttrFocus(self._buttonExit), "center", width=17),
+                    urwid.Padding(addAttrFocus(self._buttonCancel), "center", width=17)
                 ],
                     focus_column=1),
                 title="Sensors"
@@ -128,7 +128,7 @@ class UI:
             return urwid.Overlay(
                    urwid.Filler(w),
                    urwid.SolidFill(),
-                   align="center", valign="middle", width=60, height=20
+                   align="center", valign="middle", width=70, height=20
             )
 
         self._widgets = {
