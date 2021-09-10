@@ -48,7 +48,7 @@ class BasePage(urwid.PopUpLauncher):
         dialog = ExitDialog()
 
         def exit_yes(_):
-            raise urwid.ExitMainLoop()
+            self._emit("exit_without_save")
 
         def exit_no(_):
             self.close_pop_up()
@@ -92,9 +92,8 @@ class PageInflux(BasePage):
 
         super().__init__(compositeWidget)
 
-        urwid.register_signal(self.__class__, ["page_next"])
+        urwid.register_signal(self.__class__, ["page_next", "exit_without_save"])
         urwid.connect_signal(self._buttonNext, "click", lambda _: self._emit("page_next"))
-
         urwid.connect_signal(self._buttonCancel, "click", lambda _: self.open_pop_up())
 
 
@@ -117,9 +116,8 @@ class PageSensors(BasePage):
 
         super().__init__(compositeWidget)
 
-        urwid.register_signal(self.__class__, ["page_back"])
+        urwid.register_signal(self.__class__, ["page_back", "exit_without_save"])
         urwid.connect_signal(self._buttonBack, "click", lambda _: self._emit("page_back"))
-
         urwid.connect_signal(self._buttonCancel, "click", lambda _: self.open_pop_up())
 
 
@@ -159,6 +157,12 @@ class UI:
         def modeInflux(_):
             self._mainLoop.widget = self._widgets["influx"]
         urwid.connect_signal(self._pageSensors, "page_back", modeInflux)
+
+        def exit_without_save(_):
+            raise urwid.ExitMainLoop()
+        urwid.connect_signal(self._pageInflux, "exit_without_save", exit_without_save)
+        urwid.connect_signal(self._pageSensors, "exit_without_save", exit_without_save)
+
 
     def run(self):
         self._mainLoop.run()
