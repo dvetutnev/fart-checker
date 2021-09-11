@@ -107,14 +107,22 @@ class PageSensors(BasePage):
         self._buttonExit = urwid.Button("Save and exit")
         self._buttonCancel = urwid.Button("Cancel")
 
+        self._sensors = urwid.SimpleFocusListWalker([addAttrFocus(urwid.SelectableIcon("--")), addAttrFocus(urwid.SelectableIcon("--"))])
+
         compositeWidget = \
             urwid.LineBox(
-                urwid.Columns([
-                    urwid.Padding(addAttrFocus(self._buttonBack), "center", width=17),
-                    urwid.Padding(addAttrFocus(self._buttonExit), "center", width=17),
-                    urwid.Padding(addAttrFocus(self._buttonCancel), "center", width=17)
-                ],
-                    focus_column=1),
+                urwid.Pile([
+                    urwid.LineBox(
+                        urwid.BoxAdapter(urwid.ListBox(self._sensors), 10)
+                    ),
+                    urwid.Columns([
+                        urwid.Padding(addAttrFocus(self._buttonBack), "center", width=17),
+                        urwid.Padding(addAttrFocus(self._buttonExit), "center", width=17),
+                        urwid.Padding(addAttrFocus(self._buttonCancel), "center", width=17)
+                    ],
+                        focus_column=1
+                    )
+                ]),
                 title="Sensors"
             )
 
@@ -124,6 +132,9 @@ class PageSensors(BasePage):
         urwid.connect_signal(self._buttonBack, "click", lambda _: self._emit("page_back"))
         urwid.connect_signal(self._buttonExit, "click", lambda _: self._emit("save_and_exit"))
         urwid.connect_signal(self._buttonCancel, "click", lambda _: self.open_pop_up())
+
+    def add_sensor(self, path, location, model):
+        pass
 
     @property
     def result(self):
