@@ -43,23 +43,7 @@ class ExitDialog(urwid.WidgetWrap):
         urwid.connect_signal(buttonNo, "click", lambda _: self._emit("exit_no"))
 
 
-class BasePage(urwid.PopUpLauncher):
-    def __init__(self, widget):
-        super().__init__(widget)
-
-    def create_pop_up(self):
-        dialog = ExitDialog()
-
-        urwid.connect_signal(dialog, "exit_yes", lambda _: self._emit("exit_without_save"))
-        urwid.connect_signal(dialog, "exit_no", lambda _: self.close_pop_up())
-
-        return dialog
-
-    def get_pop_up_parameters(self):
-        return {'left': 10, 'top': 1, 'overlay_width': 32, 'overlay_height': 7}
-
-
-class PageInflux(BasePage):
+class PageInflux(urwid.PopUpLauncher):
     def __init__(self):
         self._editUrl = urwid.Edit("url:    ", "https://")
         self._editOrg = urwid.Edit("org:    ", "kysa.me")
@@ -92,6 +76,17 @@ class PageInflux(BasePage):
         urwid.register_signal(self.__class__, ["page_next", "exit_without_save"])
         urwid.connect_signal(self._buttonNext, "click", lambda _: self._emit("page_next"))
         urwid.connect_signal(self._buttonCancel, "click", lambda _: self.open_pop_up())
+
+    def create_pop_up(self):
+        dialog = ExitDialog()
+
+        urwid.connect_signal(dialog, "exit_yes", lambda _: self._emit("exit_without_save"))
+        urwid.connect_signal(dialog, "exit_no", lambda _: self.close_pop_up())
+
+        return dialog
+
+    def get_pop_up_parameters(self):
+        return {'left': 10, 'top': 1, 'overlay_width': 32, 'overlay_height': 7}
 
     @property
     def result(self):
@@ -131,7 +126,13 @@ class SensorModelDialog(urwid.WidgetWrap):
         urwid.connect_signal(self._buttonSkip, "click", lambda _: self._emit("skip"))
 
 
-class PageSensors(BasePage):
+class PageSensors(urwid.PopUpLauncher):
+    class _Dialog(Enum):
+        Exit = auto()
+        SensorModel = auto()
+
+    _dialogMode = None
+
     def __init__(self):
         self._buttonBack = urwid.Button("Back")
         self._buttonExit = urwid.Button("Save and exit")
@@ -162,27 +163,30 @@ class PageSensors(BasePage):
         urwid.connect_signal(self._buttonBack, "click", lambda _: self._emit("page_back"))
         urwid.connect_signal(self._buttonExit, "click", lambda _: self._emit("save_and_exit"))
 
-        urwid.connect_signal(self._buttonCancel, "click", lambda _: self.open_dialog(self.Dialog.Exit))
+        urwid.connect_signal(self._buttonCancel, "click", lambda _: self.open_dialog(self._Dialog.Exit))
 
-    class Dialog(Enum):
-        Exit = auto()
-        SensorModel = auto()
-
-    def open_dialog(self, mode: Dialog):
-        if mode == self.Dialog.Exit:
-            self.create_pop_up = super().create_pop_up
-        elif mode == self.Dialog.SensorModel:
-            self.create_pop_up = self.create_sensor_model
-
+    def open_dialog(self, mode: _Dialog):
+        self._dialogMode = mode
         self.open_pop_up()
 
-    def create_sensor_model(self):
-        dialog = SensorModelDialog()
-        urwid.connect_signal(dialog, "skip", lambda _: self.close_pop_up())
-        return dialog
+    def create_pop_up(self):
+        if self._dialogMode == self._Dialog.Exit:
+            dialog = ExitDialog()
+            urwid.connect_signal(dialog, "exit_yes", lambda _: self._emit("exit_without_save"))
+            urwid.connect_signal(dialog, "exit_no", lambda _: self.close_pop_up())
+            return dialog
+        elif self._dialogMode == self._Dialog.SensorModel:
+            dialog = SensorModelDialog()
+            urwid.connect_signal(dialog, "skip", lambda _: self.close_pop_up())
+            return dialog
+        else:
+            raise Exception("PageSensor: unknown _dialogMode")
+
+    def get_pop_up_parameters(self):
+        return {'left': 10, 'top': 1, 'overlay_width': 32, 'overlay_height': 7}
 
     def add_sensor(self, model, location, path):
-        self.open_dialog(self.Dialog.SensorModel)
+        self.open_dialog(self._Dialog.SensorModel)
 
     @property
     def result(self):
