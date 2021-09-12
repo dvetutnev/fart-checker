@@ -5,6 +5,8 @@ import urwid
 import asyncio
 import yaml
 
+from enum import Enum, auto
+
 import aserial
 import gas_sensor
 
@@ -101,6 +103,34 @@ class PageInflux(BasePage):
         }
 
 
+class SensorModelDialog(urwid.WidgetWrap):
+    def __init__(self):
+        self._buttonOk = urwid.Button("Ok")
+        self._buttonSkip = urwid.Button("Skip")
+
+        compositeWidget = \
+            urwid.Filler(
+                urwid.LineBox(
+                    urwid.Pile([
+                        ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-H2S"))),
+
+                        urwid.Divider(),
+
+                        urwid.Columns([
+                           urwid.Padding(addAttrFocus(self._buttonOk), "center", width=8),
+                           urwid.Padding(addAttrFocus(self._buttonSkip), "center", width=8)
+                        ])
+                    ]),
+                    title="Model sensor"
+                )
+            )
+
+        super().__init__(compositeWidget)
+
+        urwid.register_signal(self.__class__, ["skip"])
+        urwid.connect_signal(self._buttonSkip, "click", lambda _: self._emit("skip"))
+
+
 class PageSensors(BasePage):
     def __init__(self):
         self._buttonBack = urwid.Button("Back")
@@ -131,19 +161,32 @@ class PageSensors(BasePage):
         urwid.register_signal(self.__class__, ["page_back", "exit_without_save", "save_and_exit"])
         urwid.connect_signal(self._buttonBack, "click", lambda _: self._emit("page_back"))
         urwid.connect_signal(self._buttonExit, "click", lambda _: self._emit("save_and_exit"))
-        urwid.connect_signal(self._buttonCancel, "click", lambda _: self.open_pop_up())
 
-    def add_sensor(self, path, location, model):
-        pass
+        urwid.connect_signal(self._buttonCancel, "click", lambda _: self.open_dialog(self.Dialog.Exit))
+
+    class Dialog(Enum):
+        Exit = auto()
+        SensorModel = auto()
+
+    def open_dialog(self, mode: Dialog):
+        if mode == self.Dialog.Exit:
+            self.create_pop_up = super().create_pop_up
+        elif mode == self.Dialog.SensorModel:
+            self.create_pop_up = self.create_sensor_model
+
+        self.open_pop_up()
+
+    def create_sensor_model(self):
+        dialog = SensorModelDialog()
+        urwid.connect_signal(dialog, "skip", lambda _: self.close_pop_up())
+        return dialog
+
+    def add_sensor(self, model, location, path):
+        self.open_dialog(self.Dialog.SensorModel)
 
     @property
     def result(self):
         return list()
-
-
-def unhandled_input(key):
-    if key == "esc":
-        raise urwid.ExitMainLoop()
 
 
 class UI:
@@ -170,8 +213,18 @@ class UI:
         ]
         evl = urwid.AsyncioEventLoop(loop=asyncioLoop)
 
+        self.sensor = 0
+
+        def unhandled_input(key):
+            if key == "esc":
+                raise urwid.ExitMainLoop()
+            if key == "s":
+                self._pageSensors.add_sensor("ZE08-CH2O", "1-3.3.2.99", "/dev/ttyUSB1{}".format(self.sensor))
+                self.sensor += 1
+
         self._mainLoop = urwid.MainLoop(self._widgets["influx"], palette,
                                         event_loop=evl, unhandled_input=unhandled_input, pop_ups=True)
+
         def modeSensors(_):
             self._mainLoop.widget = self._widgets["sensors"]
         urwid.connect_signal(self._pageInflux, "page_next", modeSensors)
