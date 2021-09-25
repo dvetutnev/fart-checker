@@ -98,16 +98,32 @@ class PageInflux(urwid.PopUpLauncher):
         }
 
 
+class SelectablePile(urwid.Pile):
+    def __init__(self, widget_list, focus_item=None):
+        urwid.register_signal(self.__class__, ["select_sensor"])
+        super().__init__(widget_list, focus_item)
+
+    def keypress(self, size, key):
+        if key == "enter":
+            self._emit("select_sensor", "ZE03-CO")
+        else:
+            return super().keypress(size, key)
+
+
 class SensorModelDialog(urwid.WidgetWrap):
     def __init__(self):
         self._buttonOk = urwid.Button("Ok")
         self._buttonSkip = urwid.Button("Skip")
 
+        self._sensorModels = SelectablePile([
+            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-H2S"))),
+        ])
+
         compositeWidget = \
             urwid.Filler(
                 urwid.LineBox(
                     urwid.Pile([
-                        ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-H2S"))),
+                        self._sensorModels,
 
                         urwid.Divider(),
 
@@ -122,7 +138,8 @@ class SensorModelDialog(urwid.WidgetWrap):
 
         super().__init__(compositeWidget)
 
-        urwid.register_signal(self.__class__, ["skip"])
+        urwid.register_signal(self.__class__, ["select_sensor", "skip"])
+        urwid.connect_signal(self._sensorModels, "select_sensor", lambda _, *args: self._emit("select_sensor", *args))
         urwid.connect_signal(self._buttonSkip, "click", lambda _: self._emit("skip"))
 
 
@@ -138,7 +155,7 @@ class PageSensors(urwid.PopUpLauncher):
         self._buttonExit = urwid.Button("Save and exit")
         self._buttonCancel = urwid.Button("Cancel")
 
-        self._sensors = urwid.SimpleFocusListWalker([addAttrFocus(urwid.SelectableIcon("--")), addAttrFocus(urwid.SelectableIcon("--"))])
+        self._sensors = urwid.SimpleFocusListWalker([])
 
         compositeWidget = \
             urwid.LineBox(
@@ -189,8 +206,13 @@ class PageSensors(urwid.PopUpLauncher):
 
     def _create_sensor_model_dialog(self):
         dialog = SensorModelDialog()
+        urwid.connect_signal(dialog, "select_sensor", lambda _, *args: self._add_sensor(*args))
         urwid.connect_signal(dialog, "skip", lambda _: self.close_pop_up())
         return dialog
+
+    def _add_sensor(self, model):
+        self._sensors.append(addAttrFocus(urwid.SelectableIcon(model)))
+        self.close_pop_up()
 
     def get_pop_up_parameters(self):
         return {'left': 10, 'top': 1, 'overlay_width': 32, 'overlay_height': 7}
