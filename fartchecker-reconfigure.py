@@ -220,7 +220,7 @@ class UI:
         self.sensor = 0
 
         def unhandled_input(key):
-            if key == "esc":
+            if key == "f12":
                 raise urwid.ExitMainLoop()
             if key == "s":
                 self._pageSensors.add_sensor("ZE08-CH2O", "1-3.3.2.99", "/dev/ttyUSB1{}".format(self.sensor))
