@@ -185,7 +185,7 @@ class PageSensors(urwid.PopUpLauncher):
     def get_pop_up_parameters(self):
         return {'left': 10, 'top': 1, 'overlay_width': 32, 'overlay_height': 7}
 
-    def add_sensor(self, location, path):
+    def on_found_sensor(self, location, path):
         self.open_dialog(self._Dialog.SensorModel)
 
     @property
@@ -223,7 +223,7 @@ class UI:
             if key == "f12":
                 raise urwid.ExitMainLoop()
             if key == "s":
-                self._pageSensors.add_sensor("1-3.3.2.99", "/dev/ttyUSB1{}".format(self.sensor))
+                self._pageSensors.on_found_sensor("1-3.3.2.99", "/dev/ttyUSB1{}".format(self.sensor))
                 self.sensor += 1
 
         self._mainLoop = urwid.MainLoop(self._widgets["influx"], palette,
