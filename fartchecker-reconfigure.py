@@ -143,6 +143,37 @@ class SensorModelDialog(urwid.WidgetWrap):
         urwid.connect_signal(self._buttonSkip, "click", lambda _: self._emit("skip"))
 
 
+class PopUp(urwid.PopUpLauncher):
+    class Dialog(Enum):
+        Exit = auto()
+        SensorModel = auto()
+
+    _pop_up_widget = None
+    _pop_up_parameters = None
+
+    def __init__(self, original_widget):
+        super().__init__(original_widget)
+
+    def create_pop_up(self, mode: Dialog):
+        """
+        Subclass must override this method and return a widget and parameters
+        to be used for the pop-up.  This method is called once each time
+        the pop-up is opened.
+        """
+        raise NotImplementedError("Subclass must override this method")
+
+    def get_pop_up_parameters(self):
+        return self._pop_up_parameters
+
+    def open_pop_up(self, mode: Dialog):
+        self._pop_up_widget, self._pop_up_parameters = self.create_pop_up(mode)
+        self._invalidate()
+
+    def close_pop_up(self):
+        self._pop_up_widget, self._pop_up_parameters = None, None
+        self._invalidate()
+
+
 class PageSensors(urwid.PopUpLauncher):
     class _Dialog(Enum):
         Exit = auto()
