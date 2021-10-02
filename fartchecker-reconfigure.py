@@ -143,7 +143,7 @@ class SensorModelDialog(urwid.WidgetWrap):
         super().__init__(compositeWidget)
 
         urwid.register_signal(self.__class__, ["select_sensor", "skip"])
-        urwid.connect_signal(self._sensorModels, "select_sensor", lambda _, *args: self._emit("select_sensor", *args))
+        urwid.connect_signal(self._sensorModels, "select_sensor", lambda _, model: self._emit("select_sensor", model, location, path))
         urwid.connect_signal(self._buttonSkip, "click", lambda _: self._emit("skip"))
 
 
@@ -231,8 +231,21 @@ class PageSensors(PopUp):
         urwid.connect_signal(dialog, "skip", lambda _: self.close_pop_up())
         return dialog, {'left': 5, 'top': 1, 'overlay_width': 70, 'overlay_height': 17}
 
-    def _add_sensor(self, model):
-        self._sensors.append(addAttrFocus(urwid.SelectableIcon(model)))
+    class _Sensor(urwid.SelectableIcon):
+        def __init__(self, model, location, path):
+            super().__init__(f"{model} {location} {path}")
+            self._result = {
+                "model": model,
+                "location": location
+            }
+
+        @property
+        def result(self):
+            return self._result
+
+    def _add_sensor(self, model, location, path):
+        item = addAttrFocus(self._Sensor(model, location, path))
+        self._sensors.append(item)
         self.close_pop_up()
 
     def on_found_sensor(self, location, path):
@@ -240,7 +253,7 @@ class PageSensors(PopUp):
 
     @property
     def result(self):
-        return list()
+        return [item.original_widget.result for item in self._sensors]
 
 
 class UI:
