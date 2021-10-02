@@ -156,7 +156,7 @@ class PopUp(urwid.PopUpLauncher):
 
     def create_pop_up(self, mode: Dialog):
         """
-        Subclass must override this method and return a widget and parameters
+        Subclass must override this method and return a tuple widget and parameters
         to be used for the pop-up.  This method is called once each time
         the pop-up is opened.
         """
@@ -174,13 +174,7 @@ class PopUp(urwid.PopUpLauncher):
         self._invalidate()
 
 
-class PageSensors(urwid.PopUpLauncher):
-    class _Dialog(Enum):
-        Exit = auto()
-        SensorModel = auto()
-
-    _dialogMode = None
-
+class PageSensors(PopUp):
     def __init__(self):
         self._buttonBack = urwid.Button("Back")
         self._buttonExit = urwid.Button("Save and exit")
@@ -211,45 +205,34 @@ class PageSensors(urwid.PopUpLauncher):
         urwid.connect_signal(self._buttonBack, "click", lambda _: self._emit("page_back"))
         urwid.connect_signal(self._buttonExit, "click", lambda _: self._emit("save_and_exit"))
 
-        urwid.connect_signal(self._buttonCancel, "click", lambda _: self.open_dialog(self._Dialog.Exit))
+        urwid.connect_signal(self._buttonCancel, "click", lambda _: self.open_pop_up(self.Dialog.Exit))
 
-    def open_dialog(self, mode: _Dialog):
-        self._dialogMode = mode
-        self.open_pop_up()
-
-    def close_pop_up(self):
-        self._dialogMode = None
-        super().close_pop_up()
-
-    def create_pop_up(self):
-        if self._dialogMode == self._Dialog.Exit:
+    def create_pop_up(self, mode):
+        if mode == self.Dialog.Exit:
             return self._create_exit_dialog()
-        elif self._dialogMode == self._Dialog.SensorModel:
+        elif mode == self.Dialog.SensorModel:
             return self._create_sensor_model_dialog()
         else:
-            raise Exception("PageSensor: unknown _dialogMode")
+            raise Exception("PageSensor: unknown mode")
 
     def _create_exit_dialog(self):
         dialog = ExitDialog()
         urwid.connect_signal(dialog, "exit_yes", lambda _: self._emit("exit_without_save"))
         urwid.connect_signal(dialog, "exit_no", lambda _: self.close_pop_up())
-        return dialog
+        return dialog, {'left': 10, 'top': 1, 'overlay_width': 32, 'overlay_height': 7}
 
     def _create_sensor_model_dialog(self):
         dialog = SensorModelDialog()
         urwid.connect_signal(dialog, "select_sensor", lambda _, *args: self._add_sensor(*args))
         urwid.connect_signal(dialog, "skip", lambda _: self.close_pop_up())
-        return dialog
+        return dialog, {'left': 10, 'top': 1, 'overlay_width': 32, 'overlay_height': 7}
 
     def _add_sensor(self, model):
         self._sensors.append(addAttrFocus(urwid.SelectableIcon(model)))
         self.close_pop_up()
 
-    def get_pop_up_parameters(self):
-        return {'left': 10, 'top': 1, 'overlay_width': 32, 'overlay_height': 7}
-
     def on_found_sensor(self, location, path):
-        self.open_dialog(self._Dialog.SensorModel)
+        self.open_pop_up(self.Dialog.SensorModel)
 
     @property
     def result(self):
