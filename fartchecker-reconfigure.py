@@ -105,7 +105,8 @@ class SelectablePile(urwid.Pile):
 
     def keypress(self, size, key):
         if key == "enter":
-            self._emit("select_sensor", "ZE03-CO")
+            sensor = self.focus.original_widget.text
+            self._emit("select_sensor", sensor)
         else:
             return super().keypress(size, key)
 
@@ -116,7 +117,15 @@ class SensorModelDialog(urwid.WidgetWrap):
         self._buttonSkip = urwid.Button("Skip")
 
         self._sensorModels = SelectablePile([
+            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-CO"))),
+            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-HN3"))),
             ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-H2S"))),
+            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-HF"))),
+            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-O2"))),
+            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-NO2"))),
+            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-SO2"))),
+            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-O3"))),
+            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-CL2")))
         ])
 
         compositeWidget = \
