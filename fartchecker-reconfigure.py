@@ -11,10 +11,6 @@ import aserial
 import gas_sensor
 
 
-def addAttrFocus(w):
-    return urwid.AttrMap(w, None, "focus")
-
-
 class ExitDialog(urwid.WidgetWrap):
     def __init__(self):
         buttonYes = urwid.Button("Yes")
@@ -29,8 +25,8 @@ class ExitDialog(urwid.WidgetWrap):
                         urwid.Divider(),
 
                         urwid.Columns([
-                            urwid.Padding(addAttrFocus(buttonYes), align="center", width=8),
-                            urwid.Padding(addAttrFocus(buttonNo), align="center", width=8)
+                            urwid.Padding(urwid.AttrMap(buttonYes, None, "focus"), align="center", width=8),
+                            urwid.Padding(urwid.AttrMap(buttonNo, None, "focus"), align="center", width=8)
                         ])
                     ])
                 )
@@ -56,16 +52,16 @@ class PageInflux(urwid.PopUpLauncher):
         compositeWidget = \
             urwid.LineBox(
                 urwid.Pile([
-                    ("pack", addAttrFocus(self._editUrl)),
-                    ("pack", addAttrFocus(self._editOrg)),
-                    ("pack", addAttrFocus(self._editBucket)),
-                    (3, urwid.Filler(addAttrFocus(self._editToken), "top")),
+                    ("pack", urwid.AttrMap(self._editUrl, None, "focus")),
+                    ("pack", urwid.AttrMap(self._editOrg, None, "focus")),
+                    ("pack", urwid.AttrMap(self._editBucket, None, "focus")),
+                    (3, urwid.Filler(urwid.AttrMap(self._editToken, None, "focus"), "top")),
 
                     urwid.Divider(),
 
                     urwid.Columns([
-                       urwid.Padding(addAttrFocus(self._buttonNext), "center", width=17),
-                       urwid.Padding(addAttrFocus(self._buttonCancel), "center", width=17)
+                       urwid.Padding(urwid.AttrMap(self._buttonNext, None, "focus"), "center", width=17),
+                       urwid.Padding(urwid.AttrMap(self._buttonCancel, None, "focus"), "center", width=17)
                     ])
                 ]),
                 title="InfluxDB"
@@ -117,15 +113,15 @@ class SensorModelDialog(urwid.WidgetWrap):
         self._buttonSkip = urwid.Button("Skip")
 
         self._sensorModels = SelectablePile([
-            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-CO"))),
-            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-HN3"))),
-            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-H2S"))),
-            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-HF"))),
-            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-O2"))),
-            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-NO2"))),
-            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-SO2"))),
-            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-O3"))),
-            ("pack", addAttrFocus(urwid.SelectableIcon("ZE03-CL2")))
+            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-CO"), None, "focus")),
+            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-HN3"), None, "focus")),
+            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-H2S"), None, "focus")),
+            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-HF"), None, "focus")),
+            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-O2"), None, "focus")),
+            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-NO2"), None, "focus")),
+            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-SO2"), None, "focus")),
+            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-O3"), None, "focus")),
+            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-CL2"), None, "focus"))
         ])
 
         compositeWidget = \
@@ -141,8 +137,8 @@ class SensorModelDialog(urwid.WidgetWrap):
                         ]),
                         urwid.Divider(),
                         urwid.Columns([
-                           urwid.Padding(addAttrFocus(self._buttonOk), "center", width=8),
-                           urwid.Padding(addAttrFocus(self._buttonSkip), "center", width=8)
+                           urwid.Padding(urwid.AttrMap(self._buttonOk, None, "focus"), "center", width=8),
+                           urwid.Padding(urwid.AttrMap(self._buttonSkip, None, "focus"), "center", width=8)
                         ])
                     ]),
                     title="Model sensor"
@@ -202,9 +198,9 @@ class PageSensors(PopUp):
                         urwid.BoxAdapter(urwid.ListBox(self._sensors), 10)
                     ),
                     urwid.Columns([
-                        urwid.Padding(addAttrFocus(self._buttonBack), "center", width=17),
-                        urwid.Padding(addAttrFocus(self._buttonExit), "center", width=17),
-                        urwid.Padding(addAttrFocus(self._buttonCancel), "center", width=17)
+                        urwid.Padding(urwid.AttrMap(self._buttonBack, None, "focus"), "center", width=17),
+                        urwid.Padding(urwid.AttrMap(self._buttonExit, None, "focus"), "center", width=17),
+                        urwid.Padding(urwid.AttrMap(self._buttonCancel, None, "focus"), "center", width=17)
                     ],
                         focus_column=1
                     )
@@ -253,7 +249,7 @@ class PageSensors(PopUp):
             return self._result
 
     def _add_sensor(self, model, location, path):
-        item = addAttrFocus(self._Sensor(model, location, path))
+        item = urwid.AttrMap(self._Sensor(model, location, path), None, "focus")
         self._sensors.append(item)
         self.close_pop_up()
 
