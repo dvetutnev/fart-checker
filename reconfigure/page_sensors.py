@@ -10,7 +10,14 @@ class SelectablePile(urwid.Pile):
         super().__init__(widget_list, focus_item)
 
     def keypress(self, size, key):
-        if key == "enter":
+        if key == "up" or key == "down":
+            ret = super().keypress(size, key)
+            if not ret:
+                for (w, _) in self.contents:
+                    w.set_attr_map({None: None})
+                self.focus.set_attr_map({None: "focus"})
+            return ret
+        elif key == "enter":
             sensor = self.focus.original_widget.text
             self._emit("select_sensor", sensor)
         else:
@@ -36,7 +43,7 @@ class SensorModelDialog(urwid.WidgetWrap):
         self._buttonSkip = urwid.Button("Skip")
 
         self._sensorModels = SelectablePile([
-            ("pack", urwid.AttrMap(urwid.SelectableIcon(sensor), None, "focus")) for sensor in sensors
+            ("pack", urwid.AttrMap(urwid.SelectableIcon(sensor), None)) for sensor in sensors
         ])
 
         compositeWidget = \
