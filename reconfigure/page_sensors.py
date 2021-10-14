@@ -17,21 +17,26 @@ class SelectablePile(urwid.Pile):
             return super().keypress(size, key)
 
 
+sensors = (
+    "ZE03-CO",
+    "ZE03-HN3",
+    "ZE03-H2S",
+    "ZE03-HF",
+    "ZE03-O2",
+    "ZE03-NO2",
+    "ZE03-SO2",
+    "ZE03-O3",
+    "ZE03-CL2"
+)
+
+
 class SensorModelDialog(urwid.WidgetWrap):
     def __init__(self, location, path):
         self._buttonOk = urwid.Button("Ok")
         self._buttonSkip = urwid.Button("Skip")
 
         self._sensorModels = SelectablePile([
-            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-CO"), None, "focus")),
-            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-HN3"), None, "focus")),
-            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-H2S"), None, "focus")),
-            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-HF"), None, "focus")),
-            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-O2"), None, "focus")),
-            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-NO2"), None, "focus")),
-            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-SO2"), None, "focus")),
-            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-O3"), None, "focus")),
-            ("pack", urwid.AttrMap(urwid.SelectableIcon("ZE03-CL2"), None, "focus"))
+            ("pack", urwid.AttrMap(urwid.SelectableIcon(sensor), None, "focus")) for sensor in sensors
         ])
 
         compositeWidget = \
