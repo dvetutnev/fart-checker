@@ -59,6 +59,9 @@ class TUI:
         urwid.connect_signal(self._pageInflux, "exit_without_save", exit_without_save)
         urwid.connect_signal(self._pageSensors, "exit_without_save", exit_without_save)
 
+    def on_found_sensor(self, location, path):
+        self._pageSensors.on_found_sensor("1-3.3.2.99", path)
+
     def run(self):
         self._mainLoop.run()
         return self._result

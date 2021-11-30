@@ -10,7 +10,7 @@ def on_udev_event(monitor):
         device = monitor.poll(0)
         if device is None:
             break
-        print('{0.action} on {0.device_path}'.format(device))
+        print('{0.action} on {0.sys_name}'.format(device))
 
 if __name__ == "__main__":
     print(pyudev.udev_version())
