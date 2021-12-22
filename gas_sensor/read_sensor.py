@@ -14,14 +14,14 @@ async def readSensor(port, gasSensor, dashBoard):
                 if packet == gasSensor.approve_switch_mode:
                     return
 
-        await asyncio.wait_for(switchMode(), 1)
+        await asyncio.wait_for(switchMode(), 5)
 
         async def getSample():
             await port.write(gasSensor.read_cmd)
             return await gas_sensor.readPacket(port)
 
         while True:
-            sample = await asyncio.wait_for(getSample(), 1)
+            sample = await asyncio.wait_for(getSample(), 5)
             item = gasSensor.parsePacket(sample)
             dashBoard(item)
             await asyncio.sleep(1)
