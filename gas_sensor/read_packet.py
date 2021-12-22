@@ -13,7 +13,9 @@ async def readPacket(port):
     while len(packet) < 9:
         packet += await port.readByte()
 
-    if packet[-1] != gas_sensor.calcChecksum(packet):
+    lastByte = packet[-1]
+    checksum = gas_sensor.calcChecksum(packet)
+    if lastByte != checksum:
         raise gas_sensor.ASerialException("Invalid checksum")
 
     return packet
