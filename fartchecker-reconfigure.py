@@ -4,6 +4,7 @@
 import asyncio
 import pyudev
 import yaml
+import serial.tools.list_ports
 
 from reconfigure import TUI
 
@@ -30,7 +31,9 @@ if __name__ == "__main__":
             if device.action != 'bind':
                 continue
             path = '/dev/{0.sys_name}'.format(device)
-            location = '42'
+            def pred(d):
+                return d.device == path
+            location = next(filter(pred, serial.tools.list_ports.comports())).location
             ui.on_found_sensor(location, path)
 
     loop.add_reader(monitor.fileno(), on_udev_event, monitor)
