@@ -83,7 +83,7 @@ def loadPortConfig(conf):
 
 
 def loadConfig(source):
-    conf = yaml.full_load(source)
+    conf = yaml.load(source, yaml.Loader)
 
     if "influxdb" not in conf:
         raise Exception("Invalid config, not found 'influxdb'")
