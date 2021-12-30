@@ -9,16 +9,16 @@ from unittest.mock import patch, Mock, call
 
 def test_config_influx():
     config = """
-    influxdb:
-        url: https://influxdb.kysa.me/
-        org: kysa.me
-        bucket: FartCHECKER
-        token: t0ken
+influxdb:
+    url: https://influxdb.kysa.me/
+    org: kysa.me
+    bucket: FartCHECKER
+    token: t0ken
 
-    sensors:
-        - model: ZE03-H2S
-          location: 1-3.2.99.999
-    """
+sensors:
+    - model: ZE03-H2S
+      location: 1-3.2.99.999
+"""
     result, _ = gas_sensor.loadConfig(config)
 
     assert isinstance(result, gas_sensor.InfluxConfig)
@@ -31,10 +31,10 @@ def test_config_influx():
 
 def test_config_influx_missing():
     config = """
-    sensors:
-        - model: ZE03-H2S
-          location: 1-3.2.99.999
-    """
+sensors:
+    - model: ZE03-H2S
+      location: 1-3.2.99.999
+"""
     with pytest.raises(Exception) as ex:
         result, _ = gas_sensor.loadConfig(config)
     print(ex)
@@ -42,15 +42,15 @@ def test_config_influx_missing():
 
 def test_config_influx_missing_field():
     config = """
-    influxdb:
-        url: https://influxdb.kysa.me/
-        org: kysa.me
-        bucket: FartCHECKER
+influxdb:
+    url: https://influxdb.kysa.me/
+    org: kysa.me
+    bucket: FartCHECKER
 
-    sensors:
-        - model: ZE03-H2S
-          location: 1-3.2.99.999
-    """
+sensors:
+    - model: ZE03-H2S
+      location: 1-3.2.99.999
+"""
     with pytest.raises(Exception) as ex:
         result, _ = gas_sensor.loadConfig(config)
     print(ex)
@@ -58,19 +58,19 @@ def test_config_influx_missing_field():
 
 def test_config_sensors():
     config = """
-    influxdb:
-        url: https://influxdb.kysa.me/
-        org: kysa.me
-        bucket: FartCHECKER
-        token: t0ken
+influxdb:
+    url: https://influxdb.kysa.me/
+    org: kysa.me
+    bucket: FartCHECKER
+    token: t0ken
     
-    sensors:
-        - model: ZE03-H2S
-          location: 1-3.2.77
+sensors:
+    - model: ZE03-H2S
+      location: 1-3.2.77
 
-        - model: ZE03-CO
-          location: 1-3.3.2.55
-    """
+    - model: ZE03-CO
+      location: 1-3.3.2.55
+"""
     with patch("gas_sensor.ZE03") as ZE03Class,\
          patch("serial.tools.list_ports.comports") as comports:
 
@@ -96,19 +96,19 @@ def test_config_sensors():
 
 def test_config_sensors_skip_not_found():
     config = """
-    influxdb:
-        url: https://influxdb.kysa.me/
-        org: kysa.me
-        bucket: FartCHECKER
-        token: t0ken
+influxdb:
+    url: https://influxdb.kysa.me/
+    org: kysa.me
+    bucket: FartCHECKER
+    token: t0ken
 
-    sensors:
-        - model: ZE03-H2S
-          location: 1-3.2.77
+sensors:
+    - model: ZE03-H2S
+      location: 1-3.2.77
 
-        - model: ZE03-CO
-          location: 1-3.3.2.54
-    """
+    - model: ZE03-CO
+      location: 1-3.3.2.54
+"""
     with patch("gas_sensor.ZE03") as ZE03Class, \
          patch("serial.tools.list_ports.comports") as comports:
         sensor1, sensor2 = Mock(gas_sensor.ZE03), Mock(gas_sensor.ZE03)
@@ -127,12 +127,12 @@ def test_config_sensors_skip_not_found():
 
 def test_config_without_sensors():
     config = """
-    influxdb:
-        url: https://influxdb.kysa.me/
-        org: kysa.me
-        bucket: FartCHECKER
-        token: t0ken
-    """
+influxdb:
+    url: https://influxdb.kysa.me/
+    org: kysa.me
+    bucket: FartCHECKER
+    token: t0ken
+"""
     with pytest.raises(Exception) as ex:
         gas_sensor.loadConfig(config)
     print(ex)
@@ -140,14 +140,14 @@ def test_config_without_sensors():
 
 def test_config_sensors_missing_model():
     config = """
-    influxdb:
-        url: https://influxdb.kysa.me/
-        org: kysa.me
-        bucket: FartCHECKER
-        token: t0ken
-    sensors:
-        - location: 1-3.88
-    """
+influxdb:
+    url: https://influxdb.kysa.me/
+    org: kysa.me
+    bucket: FartCHECKER
+    token: t0ken
+sensors:
+    - location: 1-3.88
+"""
     with pytest.raises(Exception) as ex:
         gas_sensor.loadConfig(config)
     print(ex)
@@ -155,13 +155,13 @@ def test_config_sensors_missing_model():
 
 def test_config_sensors_missing_location():
     config = """
-    influxdb:
-        url: https://influxdb.kysa.me/
-        org: kysa.me
-        bucket: FartCHECKER
-        token: t0ken
-    sensors:
-        - model: ZE03-SO2
+influxdb:
+    url: https://influxdb.kysa.me/
+    org: kysa.me
+    bucket: FartCHECKER
+    token: t0ken
+sensors:
+    - model: ZE03-SO2
     """
     with pytest.raises(Exception) as ex:
         gas_sensor.loadConfig(config)
