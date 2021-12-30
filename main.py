@@ -10,8 +10,7 @@ import gas_sensor
 import asyncio
 import argparse
 
-from influxdb_client import InfluxDBClient, Point, WritePrecision
-from influxdb_client.client.write_api import SYNCHRONOUS
+import influxdb_client
 
 
 def main():
@@ -22,20 +21,19 @@ def main():
     file = open(args.config, "r")
     influxdb, sensors = gas_sensor.loadConfig(file)
 
-    client = InfluxDBClient(url=influxdb.url, token=influxdb.token, org=influxdb.org)
-    write_api = client.write_api(write_options=SYNCHRONOUS)
+    client = influxdb_client.InfluxDBClient(url=influxdb.url, token=influxdb.token, org=influxdb.org)
+    write_api = client.write_api(write_options=influxdb_client.client.write_api.SYNCHRONOUS)
 
-    point = Point("air").tag("location", "MOGES,30").field("SO2", 100)
-    write_api.write(influxdb.bucket, influxdb.org, point)
-
-    print("exit")
-    exit(0)
+    def send2influxdb(measure: gas_sensor.Measure):
+        point = influxdb_client.Point("air")\
+            .tag("location", "MOGES,30")\
+            .field(measure.name, measure.value)
+        write_api.write(influxdb.bucket, influxdb.org, point)
 
     port = aserial.ASerial("/dev/ttyUSB0", 9600)
     sensor = gas_sensor.ZE03(gas_sensor.Gas.CO)
-    def dashBoard(measure): print(measure)
 
-    asyncio.run(gas_sensor.readSensor(port, sensor, dashBoard))
+    asyncio.run(gas_sensor.readSensor(port, sensor, send2influxdb))
 
 
 if __name__ == "__main__":
