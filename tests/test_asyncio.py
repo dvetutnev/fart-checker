@@ -122,7 +122,7 @@ async def test_mocking_async_function(mock):
     mock.return_value = 117
     result = await mockingFunction()
     assert result == 117
-    mock.asert_awaited()
+    mock.assert_awaited()
 
 
 @pytest.mark.asyncio
