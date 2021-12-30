@@ -4,3 +4,5 @@ pyserial>=3.4
 pyyaml>=5.4.1
 urwid>=2.1.2
 pyudev>=0.22.0
+argparse
+influxdb-client
