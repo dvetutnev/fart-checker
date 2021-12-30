@@ -26,7 +26,7 @@ def main():
     write_api = client.write_api(write_options=SYNCHRONOUS)
 
     point = Point("air").tag("location", "MOGES,30").field("SO2", 100)
-    write_api.write(influxdb.bucket, point)
+    write_api.write(influxdb.bucket, influxdb.org, point)
 
     print("exit")
     exit(0)
