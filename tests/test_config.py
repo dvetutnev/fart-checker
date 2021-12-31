@@ -103,7 +103,7 @@ influxdb:
     token: t0ken
 
 sensors:
-    - model: ZE03-H2S
+    - model: ZE03-SO2
       location: 1-3.2.77
 """
     with patch("serial.tools.list_ports.comports") as comports:

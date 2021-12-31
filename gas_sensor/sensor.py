@@ -51,6 +51,8 @@ class ZE03(BaseSensor):
         if gas in (Gas.CO, Gas.NH3, Gas.H2S, Gas.HF):
             self._factor = 1
         elif gas in (Gas.O2, Gas.NO2, Gas.SO2, Gas.O3, Gas.CL2):
+            self._factor = 0.1
+        else:
             raise Exception("Unknown sensor type '%s'" % gas)
 
 
