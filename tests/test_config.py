@@ -94,6 +94,29 @@ sensors:
         assert result[1].device == "/dev/usb97"
 
 
+def test_config_sensors2():
+    config = """
+influxdb:
+    url: https://influxdb.kysa.me/
+    org: kysa.me
+    bucket: FartCHECKER
+    token: t0ken
+
+sensors:
+    - model: ZE03-H2S
+      location: 1-3.2.77
+"""
+    with patch("serial.tools.list_ports.comports") as comports:
+        port = ListPortInfo("/dev/usb97")
+        port.location = "1-3.2.77"
+        comports.return_value = [port]
+
+        _, result = gas_sensor.loadConfig(config)
+
+        assert isinstance(result[0].sensor, gas_sensor.ZE03)
+        assert result[0].device == "/dev/usb97"
+
+
 def test_config_sensors_skip_not_found():
     config = """
 influxdb:
