@@ -60,3 +60,6 @@ class ZE03(BaseSensor):
         value = int(packet[2]) * 256 + int(packet[3])
         value *= self._factor
         return Measure(self._gas, value)
+
+    def __str__(self):
+        return "ZE03 {0}".format(self._gas)
